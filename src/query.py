@@ -113,7 +113,7 @@ def find_cols(sql):
         return x
 
     # retrieve string between 'select' and 'from'
-    regex = r'(?<=select )(.*)(?=from)'
+    regex = r'(?<=select\n)(.*)(?=from)'
     match = re.findall(regex, sql, re.I|re.S)
 
     # remove whitespace between column names
