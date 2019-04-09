@@ -1,4 +1,4 @@
-select 
+select
     s_fin.STUDENTNUMMER,
     s_fin.INKOMSTEN_COLLEGEJAAR,
     max(s_fin.NUMMER_FIN_REGEL)
@@ -12,5 +12,5 @@ where
     s_fin.COLLEGEJAAR = [collegejaar]
     and s_sih.ACTIEFCODE_OPLEIDING_CSA = 4
 group by
-    s_fin.STUDENTNUMMER, 
+    s_fin.STUDENTNUMMER,
     s_fin.INKOMSTEN_COLLEGEJAAR
