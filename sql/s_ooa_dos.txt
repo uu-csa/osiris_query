@@ -1,0 +1,20 @@
+select
+    s_ooa.IO_AANVR_ID,
+    s_ooa.FACULTEIT,
+    s_ooa.OPLEIDING,
+    s_ooa_dos.HOOFDSTUK,
+    s_ooa_dos.PROCESSTAP,
+    s_ooa_dos.SYSTEEM_ANTWOORD_CODE,
+    s_ooa_dos.GESLOTEN_ANTWOORD_CODE,
+    s_ooa_dos.OPEN_ANTWOORD_STUDENT
+from
+    OSIRIS.OST_STUDENT_IO_DOSSIER s_ooa_dos
+    join OSIRIS.OST_STUDENT_IO_IN_AANVRAAG s_ooa
+    on s_ooa_dos.IO_AANVR_ID = s_ooa.IO_AANVR_ID
+where
+    s_ooa.IO_PROCES = '[proces]'
+    and [status_besluit]
+    and s_ooa_dos.STATUS = 'I'
+    and (s_ooa_dos.SYSTEEM_ANTWOORD_CODE is not null
+    or s_ooa_dos.GESLOTEN_ANTWOORD_CODE is not null
+    or s_ooa_dos.OPEN_ANTWOORD_STUDENT is not null)

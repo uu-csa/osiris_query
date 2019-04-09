@@ -1,0 +1,15 @@
+select
+    s_ooa.IO_AANVR_ID,
+    s_ooa.STUDENTNUMMER,
+    s_ooa.OPLEIDING,
+    s_ooa.IO_PROCES,
+    s_ooa.STATUS,
+    s_ooa.DATUM_AANGEVRAAGD,
+    s_ooa.STATUSDATUM,
+    s_ooa.STATUS_AANBIEDING,
+    s_ooa.BESLUIT,
+    s_ooa.DATUM_BESLUIT_AANVRAAG
+from
+    OSIRIS.OST_STUDENT_IO_IN_AANVRAAG s_ooa
+where
+    s_ooa.COLLEGEJAAR = [collegejaar]

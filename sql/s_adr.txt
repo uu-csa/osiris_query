@@ -1,0 +1,13 @@
+select
+    s_ih.STUDENTNUMMER,
+    s_adr.ADRESTYPE
+from
+    OSIRIS.OST_STUDENT_INSCHRIJFHIST s_ih
+join
+    OSIRIS.OST_STUDENT_ADRES s_adr
+    on s_ih.STUDENTNUMMER = s_adr.STUDENTNUMMER
+where
+    s_adr.ADRESTYPE = 'GV'
+    and s_ih.COLLEGEJAAR = [collegejaar]
+    and s_ih.EXAMENTYPE_CSA <> 'Q'
+    and s_ih.SOORT_INSCHRIJVING_FAC = 'S'

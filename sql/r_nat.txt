@@ -1,0 +1,6 @@
+select
+     NATIONALITEIT,
+     NAAM,
+     EER
+from
+     OSIRIS.OST_NATIONALITEIT

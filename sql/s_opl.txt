@@ -1,0 +1,11 @@
+select
+    s_ih.SINH_ID,
+    s_opl.AANVANGSJAAR_OPLEIDING
+from
+    OSIRIS.OST_STUDENT_INSCHRIJFHIST s_ih
+    join OSIRIS.OST_STUDENT_OPLEIDING s_opl
+    on s_ih.OPLEIDING = s_opl.OPLEIDING
+    and s_ih.STUDENTNUMMER = s_opl.STUDENTNUMMER
+where
+    s_ih.COLLEGEJAAR = [collegejaar]
+    and s_opl.AANVANGSJAAR_OPLEIDING <> [collegejaar]
