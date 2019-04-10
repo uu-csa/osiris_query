@@ -8,6 +8,7 @@ import pandas as pd
 from src import query
 
 
+# PARSE COMMAND LINE ARGUMENTS
 parser = argparse.ArgumentParser()
 parser.add_argument(
     'collegejaar',
@@ -18,6 +19,7 @@ arg = parser.parse_args()
 parameters = {
     'collegejaar': arg.collegejaar,
 }
+
 
 # STUDENTENTABELLEN
 tables = [
@@ -30,9 +32,11 @@ tables = [
     ('s_fin', False),
 ]
 
+
+# RUN SQL QUERY
 for tup in tables:
     table = tup[0]
-    sql = query.read_sql(table, parameters)
+    sql = query.read_sql(table, parameters=parameters)
     sec = query.query(
         f"{table}_{parameters['collegejaar']}", sql, remove_dup=tup[1]
         )

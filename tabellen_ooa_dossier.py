@@ -20,13 +20,15 @@ parser = argparse.ArgumentParser()
 parser.add_argument(
     'proces',
     help='Naam van het OOA-proces.'
+    )
 parser.add_argument(
     'status_besluit',
-    choices=['I', 'A', '*']
+    choices=['I', 'A', 'T'],
     help=(
         'I: Ingediende formulieren\n'
         'A: Afgehandelde formulieren\n'
         'T: Alle ingevulde formulieren'
+        )
     )
 args = parser.parse_args()
 
@@ -62,5 +64,5 @@ parameters = {
 
 # RUN SQL QUERY
 table = 's_ooa_dos'
-sql = query.read_sql(table, parameters)
+sql = query.read_sql(table, parameters=parameters)
 sec = query.query(f"{table}_{parameters['proces']}_{key}", sql, remove_dup=True)

@@ -2,12 +2,11 @@
 # activate py32
 
 import timeit
-import query
 import pickle
 import pandas as pd
+from src import query
 
 # REFERENTIETABELLEN
-
 def r_nat():
     # nationaliteiten
     table = 'r_nat'
@@ -30,7 +29,7 @@ def r_opl():
         df.loc[:, 'FACULTEIT'] = df['FACULTEIT'].replace(to_replace=fac_name)
     """
 
-    pack = query.load_query('r_opl')
+    pack = query.load_datapack('r_opl')
     df = pack['frame']
     source = pack['source']
     table = source[0]['table']
@@ -46,13 +45,14 @@ def r_opl():
     sec = stop - start
 
     pack = query.pack_data(df, table, qry, sec, source=source)
-    query.save_query(table, pack)
+    query.save_datapack(table, pack)
 
 def r_ooa_sl():
     # sl-aanmeldprocessen
     table = 'r_ooa_sl'
     sql = query.read_sql(table)
     query.query(table, sql)
+
 
 if __name__ == '__main__':
     r_nat()
