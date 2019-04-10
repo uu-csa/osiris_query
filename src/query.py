@@ -106,6 +106,13 @@ def find_cols(sql):
     :find_cols: column names as `list` of `strings`
     """
 
+    def clean(x):
+        x = (x.replace('\n', '')
+            .replace('OST_', '')
+            .strip()
+            )
+        return x
+
     def alias(x):
         key_word = ' as '
         if key_word in x:
@@ -117,11 +124,11 @@ def find_cols(sql):
     match = re.findall(regex, sql, re.I|re.S)
 
     # remove whitespace between column names
-    regex = r'\n\s*'
+    regex = r'\s*|\n\s*'
     match = re.sub(regex, '', match[0])
 
     # split to columns and remove 'OST_'
-    cols = [alias(col.replace('OST_', '')) for col in match.split(',')]
+    cols = [alias(clean(col)) for col in match.split(',')]
 
     return cols
 
