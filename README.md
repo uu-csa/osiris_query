@@ -17,6 +17,7 @@ Deze gegevens zijn met de `query` module te benaderen.
 De geïnstalleerde odbc-driver is 32-bit. Om deze driver te kunnen gebruiken, moet je een 32-bit versie van Python gebruiken. Dit kan door binnen Anaconda een virtual environment op te zetten. Start de omgeving vervolgens als volgt op:
 
 > set CONDA_FORCE_32BIT = 1
+
 > activate py32
 
 Op dit moment zijn de volgende scripts beschikbaar.
@@ -32,3 +33,4 @@ Op dit moment zijn de volgende scripts beschikbaar.
     * s_rub: student_aanmelddossiers_rubriekstatussen
     * s_fin: student_financiële_regels
 3. tabellen_ooa_dossier.py - verplicht argument: procescode
+4. tabellen_ad_hoc.py - verplicht argument: naam ad hoc sql
