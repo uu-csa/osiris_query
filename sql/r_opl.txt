@@ -1,9 +1,9 @@
 select
-     OPLEIDING,
-     NAAM_NL,
-     NAAM_EN,
-     FACULTEIT
+    OPLEIDING,
+    NAAM_NL,
+    NAAM_EN,
+    FACULTEIT
 from
-     OSIRIS.OST_OPLEIDING
+    OSIRIS.OST_OPLEIDING
 where
-     ACTUEEL = 'J'
+    ACTUEEL = 'J'
