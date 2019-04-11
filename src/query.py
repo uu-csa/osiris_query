@@ -124,7 +124,7 @@ def find_cols(sql):
     match = re.findall(regex, sql, re.I|re.S)
 
     # remove whitespace between column names
-    regex = r'\s*|\n\s*'
+    regex = r'\s\s+|\n\s*'
     match = re.sub(regex, '', match[0])
 
     # split to columns and remove 'OST_'
