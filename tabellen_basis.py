@@ -2,6 +2,8 @@
 # activate py32
 
 import timeit
+start = timeit.default_timer()
+
 import pickle
 import argparse
 import pandas as pd
@@ -25,7 +27,8 @@ parameters = {
 tables = [
     ('s_sih', False),
     ('s_opl', False),
-    ('s_stu', True),
+    ('s_stud', True),
+    ('s_stop', False),
     ('s_adr', True),
     ('s_ooa_aan', False),
     ('s_ooa_rub', False),
@@ -42,30 +45,10 @@ for tup in tables:
         )
 
 
-# table = 's_sih'
-# sql = query.read_sql(table, parameters)
-# sec = query.query(f'{table}_{collegejaar}', sql)
+stop = timeit.default_timer()
+sec = stop - start
 
-# table = 's_opl'
-# sql = query.read_sql(table, parameters)
-# sec = query.query(f'{table}_{collegejaar}', sql)
-
-# table = 's_stu'
-# sql = query.read_sql(table, parameters)
-# sec = query.query(f'{table}_{collegejaar}', sql, remove_dup=True)
-
-# table = 's_adr'
-# sql = query.read_sql(table, parameters)
-# sec = query.query(f'{table}_{collegejaar}', sql, remove_dup=True)
-
-# table = 's_ooa'
-# sql = query.read_sql(table, parameters)
-# sec = query.query(f'{table}_{collegejaar}', sql)
-
-# table = 's_rub'
-# sql = query.read_sql(table, parameters)
-# sec = query.query(f'{table}_{collegejaar}', sql)
-
+print(f"\n{'=' * 80}\nTotal runtime: {sec} seconds.")
 
 
 # # load query tables
