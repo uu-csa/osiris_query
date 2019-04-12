@@ -1,15 +1,15 @@
 select
-    s_ooa.IO_AANVR_ID,
-    s_ooa.STUDENTNUMMER,
-    s_ooa.OPLEIDING,
-    s_ooa.IO_PROCES,
-    s_ooa.STATUS,
-    s_ooa.DATUM_AANGEVRAAGD,
-    s_ooa.STATUSDATUM,
-    s_ooa.STATUS_AANBIEDING,
-    s_ooa.BESLUIT,
-    s_ooa.DATUM_BESLUIT_AANVRAAG
+    s_ooa_aan.IO_AANVR_ID,
+    s_ooa_aan.STUDENTNUMMER,
+    s_ooa_aan.OPLEIDING,
+    s_ooa_aan.IO_PROCES,
+    s_ooa_aan.STATUS,
+    s_ooa_aan.DATUM_AANGEVRAAGD,
+    s_ooa_aan.STATUSDATUM,
+    s_ooa_aan.STATUS_AANBIEDING,
+    s_ooa_aan.BESLUIT,
+    s_ooa_aan.DATUM_BESLUIT_AANVRAAG
 from
-    OSIRIS.OST_STUDENT_IO_IN_AANVRAAG s_ooa
+    OSIRIS.OST_STUDENT_IO_IN_AANVRAAG s_ooa_aan
 where
-    s_ooa.COLLEGEJAAR = [collegejaar]
+    s_ooa_aan.COLLEGEJAAR = [collegejaar]

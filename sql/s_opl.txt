@@ -1,11 +1,11 @@
 select
-    s_ih.SINH_ID,
+    s_sih.SINH_ID,
     s_opl.AANVANGSJAAR_OPLEIDING
 from
-    OSIRIS.OST_STUDENT_INSCHRIJFHIST s_ih
+    OSIRIS.OST_STUDENT_INSCHRIJFHIST s_sih
     join OSIRIS.OST_STUDENT_OPLEIDING s_opl
-    on s_ih.OPLEIDING = s_opl.OPLEIDING
-    and s_ih.STUDENTNUMMER = s_opl.STUDENTNUMMER
+    on s_sih.OPLEIDING = s_opl.OPLEIDING
+    and s_sih.STUDENTNUMMER = s_opl.STUDENTNUMMER
 where
-    s_ih.COLLEGEJAAR = [collegejaar]
+    s_sih.COLLEGEJAAR = [collegejaar]
     and s_opl.AANVANGSJAAR_OPLEIDING <> [collegejaar]

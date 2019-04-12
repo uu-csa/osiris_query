@@ -1,14 +1,14 @@
 select
-    s_ih.STUDENTNUMMER,
-    s_stu.NATIONALITEIT,
-    s_stu.NATIONALITEIT2,
-    s_stu.BURGERSERVICENUMMER,
-    s_stu.SL_INGELOGD_DIGID
+    s_sih.STUDENTNUMMER,
+    s_stud.NATIONALITEIT,
+    s_stud.NATIONALITEIT2,
+    s_stud.BURGERSERVICENUMMER,
+    s_stud.SL_INGELOGD_DIGID
 from
-    OSIRIS.OST_STUDENT_INSCHRIJFHIST s_ih
-    join OSIRIS.OST_STUDENT s_stu
-    on s_ih.STUDENTNUMMER = s_stu.STUDENTNUMMER
+    OSIRIS.OST_STUDENT_INSCHRIJFHIST s_sih
+    join OSIRIS.OST_STUDENT s_stud
+    on s_sih.STUDENTNUMMER = s_stud.STUDENTNUMMER
 where
-    s_ih.COLLEGEJAAR = [collegejaar]
-    and s_ih.EXAMENTYPE_CSA <> 'Q'
-    and s_ih.SOORT_INSCHRIJVING_FAC = 'S'
+    s_sih.COLLEGEJAAR = [collegejaar]
+    and s_sih.EXAMENTYPE_CSA <> 'Q'
+    and s_sih.SOORT_INSCHRIJVING_FAC = 'S'
