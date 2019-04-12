@@ -27,8 +27,8 @@ tables = [
     ('s_opl', False),
     ('s_stu', True),
     ('s_adr', True),
-    ('s_ooa', False),
-    ('s_rub', False),
+    ('s_ooa_aan', False),
+    ('s_ooa_rub', False),
     ('s_fin', False),
 ]
 
