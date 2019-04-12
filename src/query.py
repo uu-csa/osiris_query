@@ -2,7 +2,6 @@
 # activate py32
 
 import os
-import re
 import pyodbc
 import datetime
 import timeit
@@ -106,31 +105,22 @@ def find_cols(sql):
     :find_cols: column names as `list` of `strings`
     """
 
-    def clean(x):
-        x = (x.replace('\n', '')
-            .replace('OST_', '')
-            .strip()
-            )
-        return x
-
     def alias(x):
         key_word = ' as '
         if key_word in x:
             return x.split(key_word)[1]
         return x
 
-    # retrieve string between 'select' and 'from'
-    regex = r'(?<=select\n)(.*)(?=from)'
-    match = re.findall(regex, sql, re.I|re.S)
-
-    # remove whitespace between column names
-    regex = r'\s\s+|\n\s*'
-    match = re.sub(regex, '', match[0])
-
-    # split to columns and remove 'OST_'
-    cols = [alias(clean(col)) for col in match.split(',')]
-
-    return cols
+    # retrieve column names between 'select' and 'from'
+    cols = list()
+    for line in sql.split('\n'):
+        if 'select' in line:
+            continue
+        if 'from' in line:
+            break
+        line = line.strip(' ,').replace('OST_', '')
+        cols.append(line)
+    return [alias(col) for col in cols]
 
 
 def read_sql(sql, parameters=None):
