@@ -33,7 +33,7 @@ def reporter(func):
     return wrapper_reporter
 
 @reporter
-def query(table, sql, cols=None, remove_dup=False):
+def query(table, sql, cols=None, categoricals=None, remove_dup=False):
     """
     Run SQL-query on the OSIRIS database and return the results as a DataFrame, pack and pickle metadata (table name, query, time) with the DataFrame.
 
@@ -44,16 +44,18 @@ def query(table, sql, cols=None, remove_dup=False):
 
     Parameters
     ==========
-    :param table : `string`
+    :param table: `string`
         Name for the output table (used in metadata and as name for the .pkl file).
-    :param sql : `string`
+    :param sql: `string`
         SQL query.
 
     Optional parameters
     ===================
-    cols : list, default None
+    :param cols: list, default None
         List of column names. If None column names will be inferred from sql.
-    param remove_dup : boolean, default False
+    :param categoricals: list, default None
+        List of column names to convert to categorical variables.
+    :param remove_dup: boolean, default False
         Remove duplicates from output if True.
 
     Return
@@ -81,6 +83,9 @@ def query(table, sql, cols=None, remove_dup=False):
     df = pd.DataFrame.from_records(cursor.fetchall(), columns=cols)
     if remove_dup:
         df = df.drop_duplicates()
+    if categoricals:
+        for categorical in categoricals:
+            df[categorical] = df[categorical].astype('category')
     stop = timeit.default_timer()
     sec = stop - start
 
