@@ -1,14 +1,14 @@
 select
-    SINH_ID,
-    CRITERIUM,
-    COLLEGEJAAR,
-    KLEUR,
-    TOELICHTING
+    s_stop.SINH_ID,
+    s_stop.CRITERIUM,
+    s_stop.KLEUR,
+    s_stop.TOELICHTING
 from
-    OSIRIS.OST_STUDENT_INSCHR_STOPLICHT
+    OSIRIS.OST_STUDENT_INSCHR_STOPLICHT s_stop
 where
-    COLLEGEJAAR == [collegejaar]
-    and CRITERIUM in (
+    s_stop.COLLEGEJAAR = [collegejaar]
+    and s_stop.KLEUR <> 'GRIJS'
+    and s_stop.CRITERIUM in (
         'IDENTITEIT_STATUS',
         'VERBLIJFSDOCUMENT',
         'VOOROPLEIDING_GEVERIFIEERD',
@@ -23,5 +23,4 @@ where
         'BSA',
         'HOGEREJAARS_GEACCEPTEERD',
         'BLOKKADE'
-    )
-    and KLEUR <> 'GRIJS'
+        )
