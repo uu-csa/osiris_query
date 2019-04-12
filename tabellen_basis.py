@@ -25,14 +25,47 @@ parameters = {
 
 # STUDENTENTABELLEN
 tables = [
-    ('s_sih', False),
-    ('s_opl', False),
-    ('s_stud', True),
-    ('s_stop', False),
-    ('s_adr', True),
-    ('s_ooa_aan', False),
-    ('s_ooa_rub', False),
-    ('s_fin', False),
+    ('s_sih', False, [
+        's_sih.OPLEIDING',
+        's_sih.CROHO',
+        's_sih.ACTIEFCODE_OPLEIDING_CSA',
+        's_sih.INSCHRIJVINGSTATUS',
+        's_sih.EXAMENTYPE_CSA',
+        's_sih.VOLTIJD_DEELTIJD',
+        's_sih.LOTINGVORM',
+        's_sih.DEELNAME_STUDIEKEUZECHECK',
+        's_sih.RESULT_STUDIEKEUZECHECK',
+        's_sih.TOELAATB_STUDIEKEUZECHECK',
+        's_sih.TOELAATBAAR_QUA_AMD',
+        's_sih.BETAALVORM',
+        ]),
+    ('s_opl', False, [
+        's_opl.AANVANGSJAAR_OPLEIDING'
+        ]),
+    ('s_stud', True, [
+        's_stud.NATIONALITEIT',
+        's_stud.NATIONALITEIT2',
+        's_stud.SL_INGELOGD_DIGID'
+        ]),
+    ('s_stop', False, [
+        's_stop.CRITERIUM', 's_stop.KLEUR', 's_stop.TOELICHTING'
+        ]),
+    ('s_adr', True, [
+        's_adr.ADRESTYPE'
+    ]),
+    ('s_ooa_aan', False, [
+        's_ooa_aan.OPLEIDING',
+        's_ooa_aan.IO_PROCES',
+        's_ooa_aan.STATUS',
+        's_ooa_aan.STATUS_AANBIEDING',
+        's_ooa_aan.BESLUIT',
+        ]),
+    ('s_ooa_rub', False, [
+        's_ooa_rub.IO_PROCES',
+        's_ooa_rub.HOOFDSTUK',
+        's_ooa_rub.STATUS',
+        ]),
+    ('s_fin', False, None),
 ]
 
 
@@ -41,7 +74,10 @@ for tup in tables:
     table = tup[0]
     sql = query.read_sql(table, parameters=parameters)
     sec = query.query(
-        f"{table}_{parameters['collegejaar']}", sql, remove_dup=tup[1]
+        f"{table}_{parameters['collegejaar']}",
+        sql,
+        remove_dup=tup[1],
+        categoricals=tup[2],
         )
 
 
