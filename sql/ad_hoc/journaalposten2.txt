@@ -1,0 +1,43 @@
+with
+    finregels_student
+    as (
+        select
+            fr.NUMMER_FIN_REGEL,
+            fr.STUDENTNUMMER,
+            jp.COLLEGEGELDTYPE,
+            jp.SOORT_COLLEGEGELD,
+            ct.OMSCHRIJVING
+        from
+            OSIRIS.OST_JOURNAALPOST jp
+        inner join
+            OSIRIS.OST_STUDENT_FIN_REGEL fr
+            on fr.NUMMER_FIN_REGEL = jp.NUMMER_FIN_REGEL
+        inner join
+            OSIRIS.OST_DEB_COLLEGEGELDTYPE ct
+            on ct.COLLEGEGELDTYPE = jp.COLLEGEGELDTYPE
+        where
+            jp.COLLEGEJAAR = 2018
+            and jp.MAAND = 9
+    ),
+    max_fin_regel
+    as (
+        select
+            STUDENTNUMMER,
+            max(NUMMER_FIN_REGEL) as max_nummer
+        from
+            finregels_student
+        group by
+            STUDENTNUMMER
+    )
+select distinct
+    max_fin_regel.max_nummer,
+    max_fin_regel.STUDENTNUMMER,
+    finregels_student.COLLEGEGELDTYPE,
+    finregels_student.SOORT_COLLEGEGELD,
+    finregels_student.OMSCHRIJVING
+from
+    max_fin_regel
+    inner join
+        finregels_student
+        on finregels_student.STUDENTNUMMER = max_fin_regel.STUDENTNUMMER
+        and finregels_student.NUMMER_FIN_REGEL = max_fin_regel.max_nummer
