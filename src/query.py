@@ -1,19 +1,13 @@
 # set CONDA_FORCE_32BIT = 1
 # activate py32
 
-import os
 import pyodbc
 import datetime
 import timeit
 import pickle
 import functools
 import pandas as pd
-import pprint as pp
-from pathlib import Path
-
-PATH_MOD = Path(__file__).resolve().parent.parent
-PATH_QUERY = PATH_MOD / 'query_outputs'
-PATH_SQL = PATH_MOD / 'sql'
+from .config import PATH_LOGIN, PATH_OUTPUT
 
 
 def reporter(func):
@@ -32,14 +26,38 @@ def reporter(func):
         return value
     return wrapper_reporter
 
+
 @reporter
-def query(table, sql, cols=None, categoricals=None, remove_dup=False):
+def connect():
+    # get login details
+    login = PATH_LOGIN.read_text().split('\n')[1].split(',')
+    uid = login[0]
+    pwd = login[1]
+
+    # log on to database
+    param = f'DSN=UUSTPRD;DBQ=UUSTPRD;STPRD;UID={uid};PWD={pwd};CHARSET=UTF8'
+    conn = pyodbc.connect(param)
+    return conn.cursor()
+
+
+@reporter
+def query(
+    table,
+    sql,
+    cursor=None,
+    columns=None,
+    dtypes=None,
+    remove_duplicates=False
+    ):
     """
-    Run SQL-query on the OSIRIS database and return the results as a DataFrame, pack and pickle metadata (table name, query, time) with the DataFrame.
+    Run sql-query on the OSIRIS database and return the results as a DataFrame, pack and pickle metadata (table name, query, time) with the DataFrame.
 
     - Lookup login details from u:/uustprd.txt
     - Connect to database
     - Fetch records
+    - (Optionally) Rename columns
+    - (Optionally) Recast dtypes
+    - (Optionally) Remove duplicate rows
     - Pack and pickle (meta)data
 
     Parameters
@@ -47,15 +65,17 @@ def query(table, sql, cols=None, categoricals=None, remove_dup=False):
     :param table: `string`
         Name for the output table (used in metadata and as name for the .pkl file).
     :param sql: `string`
-        SQL query.
+        sql query.
 
     Optional parameters
     ===================
-    :param cols: list, default None
+    :paramn cursor: odbc cursor, default None
+        If None the function will establish connection.
+    :param columns: list, default None
         List of column names. If None column names will be inferred from sql.
-    :param categoricals: list, default None
-        List of column names to convert to categorical variables.
-    :param remove_dup: boolean, default False
+    :param dtypes: dict, default None
+        Dict of column name / dtype pairs.
+    :param remove_duplicates: boolean, default False
         Remove duplicates from output if True.
 
     Return
@@ -63,29 +83,18 @@ def query(table, sql, cols=None, categoricals=None, remove_dup=False):
     :query: table name as `string`, sec as `float`
     """
 
-    # get login details
-    login = Path('u:/uustprd.txt').read_text().split('\n')[1].split(',')
-    uid = login[0]
-    pwd = login[1]
-
-    # find column names
-    if cols == None:
-        cols = find_cols(sql)
-
-    # log on to database
-    param = f'DSN=UUSTPRD;DBQ=UUSTPRD;STPRD;UID={uid};PWD={pwd};CHARSET=UTF8'
-    conn = pyodbc.connect(param)
-    cursor = conn.cursor()
+    # connection
+    if not cursor:
+        cursor = connect()
 
     # fetch records
     start = timeit.default_timer()
     cursor.execute(sql)
-    df = pd.DataFrame.from_records(cursor.fetchall(), columns=cols)
-    if remove_dup:
+    df = pd.DataFrame.from_records(cursor.fetchall(), columns=columns)
+    if remove_duplicates:
         df = df.drop_duplicates()
-    if categoricals:
-        for categorical in categoricals:
-            df[categorical] = df[categorical].astype('category')
+    if dtypes:
+        df = df.astype(dtypes)
     stop = timeit.default_timer()
     sec = stop - start
 
@@ -93,69 +102,6 @@ def query(table, sql, cols=None, categoricals=None, remove_dup=False):
     save_datapack(table, pack)
 
     return table, sec
-
-
-def find_cols(sql):
-    """
-    Extract column names from sql query.
-    - Select lines between 'select' and 'from'
-    - If line contains 'as' extract name from that.
-
-    Parameters
-    ==========
-    :param sql: `string`
-
-    Return
-    ======
-    :find_cols: column names as `list` of `strings`
-    """
-
-    def alias(x):
-        key_word = ' as '
-        if key_word in x:
-            return x.split(key_word)[1]
-        return x
-
-    # retrieve column names between 'select' and 'from'
-    cols = list()
-    for line in sql.split('\n'):
-        if 'select' in line:
-            continue
-        if 'from' in line:
-            break
-        line = line.strip(' ,').replace('OST_', '')
-        cols.append(line)
-    return [alias(col) for col in cols]
-
-
-def read_sql(sql, parameters=None):
-    """
-    Fetch sql query from PATH_SQL and set variables.
-
-    Parameters
-    ==========
-    :param sql : `string`
-        Name of the SQL query (without extension).
-
-    Optional parameters
-    ===================
-    param parameters : `dict`, default `None`
-        Dictionary of parameters to be replaced in the SQL query.
-
-    Return
-    ======
-    :read_sql: `string`
-    """
-
-    with open(PATH_SQL / f'{sql}.txt', 'r') as f:
-        sql = f.read()
-
-    # replace parameter values
-    if parameters:
-        for key in parameters:
-            sql = sql.replace(f'[{key}]', str(parameters[key]))
-
-    return sql
 
 
 def pack_data(df, table, sql, sec, source=None):
@@ -177,13 +123,13 @@ def pack_data(df, table, sql, sec, source=None):
 
 
 def save_datapack(table, pack):
-    with open(PATH_QUERY / f'{table}.pkl', 'wb') as f:
+    with open(PATH_OUTPUT / f'{table}.pkl', 'wb') as f:
         pickle.dump(pack, f)
     return None
 
 
 def load_datapack(table):
-    with open(PATH_QUERY / f'{table}.pkl', 'rb') as f:
+    with open(PATH_OUTPUT / f'{table}.pkl', 'rb') as f:
         pack = pickle.load(f)
     return pack
 
@@ -193,7 +139,7 @@ def load_frame(table, strip_col=True):
     frame = pack['frame']
 
     if strip_col:
-        def strip_col(x):
+        def strip(x):
             if '(' in x:
                 sub = x[x.find('(') + 1:x.rfind(')')]
                 if '.' in sub:
@@ -201,7 +147,7 @@ def load_frame(table, strip_col=True):
             if '.' in x:
                 x = x.split('.')[1]
             return x
-        frame.columns = [strip_col(col) for col in frame.columns]
+        frame.columns = [strip(col) for col in frame.columns]
 
     return frame
 
