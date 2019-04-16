@@ -21,7 +21,10 @@ class QueryDef:
         self.dtypes = querydef.dtypes
         self.remove_duplicates = querydef.remove_duplicates
 
-        param_string = '_'.join([parameters[k] for k in parameters])
+        param_string = (
+            '_'.join([parameters[k] for k in parameters])
+            if parameters is not None else ''
+            )
         self.outfile = f"{query_name}_{param_string}"
 
 
