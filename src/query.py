@@ -15,7 +15,7 @@ def reporter(func):
     def wrapper_reporter(*args, **kwargs):
         args_repr = [a for a in args]
         kwargs_repr = [f'{k}={v!r}' for k, v in kwargs.items()]
-        signature = '\n'.join(args_repr + kwargs_repr)
+        signature = '\n\n'.join(args_repr + kwargs_repr)
         print("=" * 80)
         print(f"CALLING {func.__name__!r}")
         print("=" * 80)
