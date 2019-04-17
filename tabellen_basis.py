@@ -34,7 +34,7 @@ queries = [
 
 # RUN QUERIES
 for query in queries:
-    qd = QueryDef(query)
+    qd = QueryDef(query, parameters=parameters)
     qry.query(
         qd.outfile,
         qd.sql,
@@ -42,6 +42,7 @@ for query in queries:
         columns=qd.columns,
         dtypes=qd.dtypes,
         remove_duplicates=qd.remove_duplicates,
+        description = qd.description,
         )
 
 # STOP TIMER AND PRINT RUNTIME
