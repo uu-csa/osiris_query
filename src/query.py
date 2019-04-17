@@ -122,9 +122,29 @@ def pack_data(df, table, sql, sec, source=None):
     return pack
 
 
-def save_datapack(table, pack):
+def save_datapack(pack):
+    # pickle pack
+    table = pack['source']['table']
     with open(PATH_OUTPUT / f'{table}.pkl', 'wb') as f:
         pickle.dump(pack, f)
+
+    # update query overview
+    source = pack['source']
+    frame = pack['frame']
+
+    file = PATH_OUTPUT / '_queries_overview_.xlsx'
+    cols = ['description', 'source', 'query', 'dtime', 'timer', 'records']
+    df = pd.read_excel(file, index_col=0)
+    if table in df.index:
+        df = df.drop(index=table)
+    row = {
+        table: [source[k] for k in source if k != 'table']
+        }
+    row[table].append(len(frame))
+    df_row = pd.DataFrame.from_dict(row, orient='index', columns=cols)
+    df = df.append(df_row, sort=False)
+    df.to_excel(file)
+
     return None
 
 
