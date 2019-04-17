@@ -45,6 +45,7 @@ def query(
     table,
     sql,
     cursor=None,
+    description=None,
     columns=None,
     dtypes=None,
     remove_duplicates=False
@@ -98,16 +99,17 @@ def query(
     stop = timeit.default_timer()
     sec = stop - start
 
-    pack = pack_data(df, table, sql, sec)
-    save_datapack(table, pack)
+    pack = pack_data(df, table, sql, sec, description=description)
+    save_datapack(pack)
 
     return table, sec
 
 
-def pack_data(df, table, sql, sec, source=None):
+def pack_data(df, table, sql, sec, source=None, description=None):
     dtime = datetime.datetime.now()
     # collect meta-information
     source = {
+        'description': description,
         'source': source,
         'table': table,
         'query': sql,
@@ -116,7 +118,7 @@ def pack_data(df, table, sql, sec, source=None):
     }
     # pack data
     pack = {
-        'source': [source],
+        'source': source,
         'frame': df,
     }
     return pack
