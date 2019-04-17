@@ -16,8 +16,15 @@ class QueryDef:
         self.parameters = parameters
 
         querydef = self.load_querydef(query_name)
+        self.description = querydef.description
+        if self.description is not None:
+            self.description = self.set_param(
+                self.description, parameters=parameters
+                )
+        else:
+            self.description = None
         self.sql = self.set_param(querydef.sql, parameters=parameters)
-        self.columns =  querydef.columns
+        self.columns = querydef.columns
         self.dtypes = querydef.dtypes
         self.remove_duplicates = querydef.remove_duplicates
 
@@ -40,19 +47,31 @@ class QueryDef:
         Returns
         =======
         :load_querydef: tuple
+            - description of query as string
             - sql statement as string
             - column names as list
             - columns/dtypes as dictionary
             - remove duplicates as boolean
         """
 
-        tuple_names = ['sql', 'columns', 'dtypes', 'remove_duplicates']
+        tuple_names = [
+            'description',
+            'sql',
+            'columns',
+            'dtypes',
+            'remove_duplicates'
+            ]
         querydef = namedtuple('querydef', tuple_names)
 
         ini_file = PATH_INPUT / f"{query_name}.ini"
         if ini_file.exists():
             ini = configparser.ConfigParser(allow_no_value=True)
             ini.read(ini_file)
+
+            try:
+                description = ini['query']['description'].strip('\n')
+            except KeyError:
+                description = None
 
             # sql statement
             tab = ' ' * 4
@@ -88,27 +107,28 @@ class QueryDef:
             except KeyError:
                 remove_duplicates = None
 
-            return querydef(sql, colnames, dtypes, remove_duplicates)
+            return querydef(
+                description, sql, colnames, dtypes, remove_duplicates
+                )
         else:
             txt_file = PATH_INPUT / f'{query_name}.txt'
             sql = txt_file.read_text()
-            return querydef(sql, self.find_cols(sql), None, None)
+            return querydef('', sql, self.find_cols(sql), None, None)
 
 
     @staticmethod
-    def set_param(sql, parameters=None):
+    def set_param(x, parameters=None):
         """
         Set variables, if any.
 
         Parameters
         ==========
-        :param sql : `string`
-            sql statement as string.
+        :param x : `string`
 
         Optional parameters
         ===================
         param parameters : `dict`, default `None`
-            Dictionary of parameters to be replaced in the sql statement.
+            Dictionary of parameters to be replaced in the string.
 
         Return
         ======
@@ -117,8 +137,8 @@ class QueryDef:
 
         if parameters:
             for key in parameters:
-                sql = sql.replace(f'[{key}]', str(parameters[key]))
-        return sql
+                x = x.replace(f'[{key}]', str(parameters[key]))
+        return x
 
 
     @staticmethod
