@@ -1,8 +1,0 @@
-select
-     IO_PROCES,
-     ACCEPT_FORMULIER,
-     CONTROLE_BIJ_INSCHRIJVEN
-from
-     OSIRIS.OST_IO_PROCES
-where
-     TYPE_IO_PROCES = 'IN-SL'
