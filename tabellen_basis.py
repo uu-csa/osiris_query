@@ -26,10 +26,12 @@ queries = [
     's_opl',
     's_stud',
     's_stop',
+    's_stat',
     's_adr',
     's_ooa_aan',
     's_ooa_rub',
     's_fin',
+    # 's_fin_storno',
 ]
 
 # RUN QUERIES
@@ -46,10 +48,33 @@ for query in queries:
         remove_duplicates=qd.remove_duplicates,
         )
 
+# SET VARIABLES
+parameters['collegejaar_xx'] = arg.collegejaar[2:]
+
+# QUERIES TO RUN
+queries = [
+    # 's_fin_grp',
+]
+
+for query in queries:
+    qd = QueryDef(query, parameters=parameters)
+    qry.query(
+        qd.outfile,
+        qd.sql,
+        cursor=cursor,
+        description = qd.description,
+        qtype=qd.qtype,
+        columns=qd.columns,
+        dtypes=qd.dtypes,
+        remove_duplicates=qd.remove_duplicates,
+        )
+
+
 # STOP TIMER AND PRINT RUNTIME
 stop = timeit.default_timer()
 sec = stop - start
 print(f"\n{'=' * 80}\nTotal runtime: {sec} seconds.")
+
 
 
 # # load query tables
