@@ -39,10 +39,11 @@ for query in queries:
         qd.outfile,
         qd.sql,
         cursor=cursor,
+        description = qd.description,
+        qtype=qd.qtype,
         columns=qd.columns,
         dtypes=qd.dtypes,
         remove_duplicates=qd.remove_duplicates,
-        description = qd.description,
         )
 
 # STOP TIMER AND PRINT RUNTIME
