@@ -23,16 +23,20 @@ class QueryDef:
                 )
         else:
             self.description = None
+        self.qtype = querydef.qtype
         self.sql = self.set_param(querydef.sql, parameters=parameters)
         self.columns = querydef.columns
         self.dtypes = querydef.dtypes
         self.remove_duplicates = querydef.remove_duplicates
 
-        param_string = (
-            '_'.join([parameters[k] for k in parameters])
-            if parameters is not None else ''
+        param_string = None
+        if parameters is not None:
+            param_values = [parameters[k] for k in parameters]
+            param_values.insert(0, 'var')
+            param_string = '_'.join(param_values)
+        self.outfile = '_'.join(
+            [x for x in [query_name, param_string] if x is not None]
             )
-        self.outfile = f"{query_name}_{param_string}"
 
 
     def load_querydef(self, query_name):
@@ -56,6 +60,7 @@ class QueryDef:
 
         tuple_names = [
             'description',
+            'qtype',
             'sql',
             'columns',
             'dtypes',
@@ -68,10 +73,17 @@ class QueryDef:
             ini = configparser.ConfigParser(allow_no_value=True)
             ini.read(ini_file)
 
+            # description
             try:
                 description = ini['query']['description'].strip('\n')
             except KeyError:
                 description = None
+
+            # qtype
+            try:
+                qtype = ini['query']['qtype']
+            except KeyError:
+                qtype = None
 
             # sql statement
             tab = ' ' * 4
@@ -108,12 +120,12 @@ class QueryDef:
                 remove_duplicates = None
 
             return querydef(
-                description, sql, colnames, dtypes, remove_duplicates
+                description, qtype, sql, colnames, dtypes, remove_duplicates
                 )
         else:
             txt_file = PATH_INPUT / f'{query_name}.txt'
             sql = txt_file.read_text()
-            return querydef('', sql, self.find_cols(sql), None, None)
+            return querydef(None, None, sql, self.find_cols(sql), None, None)
 
 
     @staticmethod
