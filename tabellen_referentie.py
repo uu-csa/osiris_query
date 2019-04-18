@@ -4,54 +4,96 @@
 import timeit
 import pickle
 import pandas as pd
-from src import query
+import src.query as qry
+from src.querydef import QueryDef
+
+
+# CONNECT TO DATABASE
+cursor = qry.connect()
+
 
 # REFERENTIETABELLEN
 def r_nat():
     # nationaliteiten
     table = 'r_nat'
-    sql = query.read_sql(table)
-    query.query(table, sql)
+    qd = QueryDef(table)
+    qry.query(
+        qd.outfile,
+        qd.sql,
+        cursor=cursor,
+        description = qd.description,
+        qtype=qd.qtype,
+        columns=qd.columns,
+        dtypes=qd.dtypes,
+        remove_duplicates=qd.remove_duplicates,
+        )
 
 def r_opl():
     # opleidingen
     start = timeit.default_timer()
     table = 'r_opl'
-    sql = query.read_sql(table)
-    query.query(table, sql)
+    qd = QueryDef(table)
+    qry.query(
+        qd.outfile,
+        qd.sql,
+        cursor=cursor,
+        description = qd.description,
+        qtype=qd.qtype,
+        columns=qd.columns,
+        dtypes=qd.dtypes,
+        remove_duplicates=qd.remove_duplicates,
+        )
 
-    qry = """
-        fac_name = {
-            'RA': 'UCR',
-            'UC': 'UCU',
-            'IVLOS': 'GST',
-        }
-        df.loc[:, 'FACULTEIT'] = df['FACULTEIT'].replace(to_replace=fac_name)
-    """
+    source = (
+        "fac_name = {"
+        "    'RA': 'UCR',"
+        "    'UC': 'UCU',"
+        "    'IVLOS': 'GST',"
+        "}"
+        "df.loc[:, 'FACULTEIT'] = df['FACULTEIT'].replace(to_replace=fac_name)"
+        )
 
-    pack = query.load_datapack('r_opl')
-    df = pack['frame']
-    source = pack['source']
-    table = source[0]['table']
+    pack = qry.load_datapack('r_opl')
+    df = pack.frame
+    table = pack.table
+    query = pack.query
 
     fac_name = {
         'RA': 'UCR',
         'UC': 'UCU',
         'IVLOS': 'GST',
-    }
+        }
     df.loc[:, 'FACULTEIT'] = df['FACULTEIT'].replace(to_replace=fac_name)
 
     stop = timeit.default_timer()
     sec = stop - start
 
-    pack = query.pack_data(df, table, qry, sec, source=source)
-    query.save_datapack(table, pack)
+    pack = qry.pack_data(
+        frame=df,
+        table=table,
+        qtype='REF',
+        source=source,
+        query=query,
+        timer=sec,
+        description=None,
+        nrecords=len(df),
+        )
+    qry.save_datapack(pack)
 
 def r_ooa_sl():
     # sl-aanmeldprocessen
     table = 'r_ooa_sl'
-    sql = query.read_sql(table)
-    query.query(table, sql)
+    qd = QueryDef(table)
+    qry.query(
+        qd.outfile,
+        qd.sql,
+        cursor=cursor,
+        description = qd.description,
+        qtype=qd.qtype,
+        columns=qd.columns,
+        dtypes=qd.dtypes,
+        remove_duplicates=qd.remove_duplicates,
+        )
 
 
 if __name__ == '__main__':
