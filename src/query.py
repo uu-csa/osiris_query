@@ -7,7 +7,22 @@ import timeit
 import pickle
 import functools
 import pandas as pd
+from collections import namedtuple
 from .config import PATH_LOGIN, PATH_OUTPUT
+
+
+PACK_COLUMNS = [
+    'table',
+    'description',
+    'qtype',
+    'source',
+    'query',
+    'dtime',
+    'timer',
+    'nrecords',
+    'frame',
+    ]
+Pack = namedtuple('Pack', PACK_COLUMNS)
 
 
 def reporter(func):
@@ -46,6 +61,7 @@ def query(
     sql,
     cursor=None,
     description=None,
+    qtype=None,
     columns=None,
     dtypes=None,
     remove_duplicates=False
@@ -99,54 +115,45 @@ def query(
     stop = timeit.default_timer()
     sec = stop - start
 
-    pack = pack_data(df, table, sql, sec, description=description)
+    pack = pack_data(
+        table=table,
+        description=description,
+        qtype=qtype,
+        source=None,
+        query=sql,
+        timer=sec,
+        frame=df,
+        nrecords=len(df),
+        )
     save_datapack(pack)
 
     return table, sec
 
 
-def pack_data(df, table, sql, sec, source=None, description=None):
-    dtime = datetime.datetime.now()
-    # collect meta-information
-    source = {
-        'description': description,
-        'source': source,
-        'table': table,
-        'query': sql,
-        'dtime': dtime,
-        'timer': sec,
-    }
-    # pack data
-    pack = {
-        'source': source,
-        'frame': df,
-    }
+def pack_data(**kwargs):
+    kwargs['dtime'] = datetime.datetime.now()
+    pack = Pack(**kwargs)
     return pack
 
 
 def save_datapack(pack):
     # pickle pack
-    table = pack['source']['table']
+    table = pack.table
     with open(PATH_OUTPUT / f'{table}.pkl', 'wb') as f:
         pickle.dump(pack, f)
 
     # update query overview
-    source = pack['source']
-    frame = pack['frame']
-
     file = PATH_OUTPUT / '_queries_overview_.xlsx'
-    cols = ['description', 'source', 'query', 'dtime', 'timer', 'records']
+    cols = [k for k in pack._fields if k != 'table' and k != 'frame']
+    print(cols)
+    pack_dict = pack._asdict()
     df = pd.read_excel(file, index_col=0)
     if table in df.index:
         df = df.drop(index=table)
-    row = {
-        table: [source[k] for k in source if k != 'table']
-        }
-    row[table].append(len(frame))
+    row = {table: [pack_dict[k] for k in pack_dict if k in cols]}
     df_row = pd.DataFrame.from_dict(row, orient='index', columns=cols)
     df = df.append(df_row, sort=False)
     df.to_excel(file)
-
     return None
 
 
@@ -158,10 +165,10 @@ def load_datapack(table):
 
 def load_frame(table, strip_col=True):
     pack = load_datapack(table)
-    frame = pack['frame']
+    frame = pack.frame
 
     if strip_col:
-        def strip(x):
+        def strip_dot(x):
             if '(' in x:
                 sub = x[x.find('(') + 1:x.rfind(')')]
                 if '.' in sub:
@@ -169,11 +176,6 @@ def load_frame(table, strip_col=True):
             if '.' in x:
                 x = x.split('.')[1]
             return x
-        frame.columns = [strip(col) for col in frame.columns]
+        frame.columns = [strip_dot(col) for col in frame.columns]
 
     return frame
-
-
-def load_source(table):
-    pack = load_datapack(table)
-    return pack['source']
