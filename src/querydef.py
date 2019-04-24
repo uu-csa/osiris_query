@@ -90,21 +90,7 @@ class QueryDef:
                 qtype = None
 
             # sql statement
-            tab = ' ' * 4
-            clauses = [
-                'select',
-                'insert',
-                'update',
-                'delete',
-                'from',
-                'where',
-                'groupby',
-                'order by',
-                ]
-            sql = textwrap.indent(
-                ini['query']['sql'].strip('\n'), tab,
-                lambda x: not any(clause in x for clause in clauses)
-                )
+            sql = format_sql(ini['query']['sql'])
 
             # columns
             try:
@@ -202,3 +188,40 @@ class QueryDef:
             line = line.strip(' ,').replace('OST_', '')
             cols.append(line)
         return [alias(col) for col in cols]
+
+
+def format_sql(sql, tab_length=4):
+    """
+    Return formatted sql statement.
+    """
+
+    clauses = [
+        'select',
+        'insert',
+        'update',
+        'delete',
+        'from',
+        'where',
+        'groupby',
+        'order by',
+        ]
+
+    tab = ' ' * tab_length
+    depth = 0
+    lines = list()
+
+    for line in sql.splitlines():
+        if line == '':
+            continue
+        if not any(clause in line for clause in clauses):
+            line = f'{(depth + 1) * tab}{line}'
+        if '(' in line:
+            depth += 1
+        if ')' in line:
+            depth -= 1
+
+        lines.append(line)
+
+    sql = '\n'.join(lines)
+
+    return sql
