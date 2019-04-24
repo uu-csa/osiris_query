@@ -70,7 +70,10 @@ class QueryDef:
 
         ini_file = PATH_INPUT / f"{query_name}.ini"
         if ini_file.exists():
-            ini = configparser.ConfigParser(allow_no_value=True)
+            ini = configparser.ConfigParser(
+                allow_no_value=True,
+                interpolation=None,
+                )
             ini.read(ini_file)
 
             # description
