@@ -153,6 +153,20 @@ class QueryDef:
         if parameters:
             for key in parameters:
                 x = x.replace(f'[{key}]', str(parameters[key]))
+
+                # slice logic on variables
+                srch_str = fr'\[{key}\((.?:.?)\)\]'
+                regex = re.compile(srch_str)
+                match = re.search(regex, x)
+                if match is None:
+                    continue
+
+                slice_ = match.group(1).split(':')
+                left = None if slice_[0] == '' else int(slice_[0])
+                right = None if slice_[1] == '' else int(slice_[1])
+                key_slice = f'[{key}({match.group(1)})]'
+                val_slice = parameters[key][left:right]
+                x = x.replace(key_slice, val_slice)
         return x
 
 
