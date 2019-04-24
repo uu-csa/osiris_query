@@ -1,3 +1,4 @@
+import re
 import textwrap
 import configparser
 from collections import namedtuple
@@ -112,7 +113,6 @@ class QueryDef:
                 colnames = [k for k in columns]
                 dtypes = {k: v for k, v in columns.items() if v is not None}
             except KeyError:
-                print('got here')
                 colnames = self.find_cols(sql)
                 dtypes = None
 
