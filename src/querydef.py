@@ -75,7 +75,7 @@ class QueryDef:
                 allow_no_value=True,
                 interpolation=None,
                 )
-            ini.read(ini_file)
+            ini.read(ini_file, encoding='utf-8')
 
             # description
             try:
