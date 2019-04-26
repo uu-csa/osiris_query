@@ -1,18 +1,17 @@
-# set CONDA_FORCE_32BIT = 1
-# activate py32
-
 import timeit
-import pickle
+start = timeit.default_timer()
+
 import argparse
 import pandas as pd
-from src import query
+import src.query as qry
+from src.querydef import QueryDef
 
 
 def set_criteria(items):
     return ["is null" if item is None else f"= '{item}'" for item in items]
 
 def combine_criteria(items):
-    return [f"(s_ooa.STATUS {item[0]} and s_ooa.BESLUIT {item[1]})" for item in items]
+    return [f"(s_ooa_aan.STATUS {item[0]} and s_ooa_aan.BESLUIT {item[1]})" for item in items]
 
 
 # PARSE COMMAND LINE ARGUMENTS
@@ -62,7 +61,26 @@ parameters = {
 }
 
 
+# CONNECT TO DATABASE
+cursor = qry.connect()
+
+
 # RUN SQL QUERY
-table = 's_ooa_dos'
-sql = query.read_sql(table, parameters=parameters)
-sec = query.query(f"{table}_{parameters['proces']}_{key}", sql, remove_dup=True)
+query = 's_ooa_dos'
+qd = QueryDef(f"{query}", parameters=parameters)
+qry.query(
+    qd.outfile,
+    qd.sql,
+    cursor=cursor,
+    description = qd.description,
+    qtype=qd.qtype,
+    columns=qd.columns,
+    dtypes=qd.dtypes,
+    remove_duplicates=qd.remove_duplicates,
+    )
+
+
+# STOP TIMER AND PRINT RUNTIME
+stop = timeit.default_timer()
+sec = stop - start
+print(f"\n{'=' * 80}\nTotal runtime: {sec} seconds.")
