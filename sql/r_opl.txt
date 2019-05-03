@@ -1,9 +1,0 @@
-select
-    OPLEIDING,
-    NAAM_NL,
-    NAAM_EN,
-    FACULTEIT
-from
-    OSIRIS.OST_OPLEIDING
-where
-    ACTUEEL = 'J'

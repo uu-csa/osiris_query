@@ -15,7 +15,7 @@ cursor = qry.connect()
 # REFERENTIETABELLEN
 def r_nat():
     # nationaliteiten
-    table = 'r_nat'
+    table = 'referentie/r_nat'
     qd = QueryDef(table)
     qry.query(
         qd.outfile,
@@ -31,7 +31,7 @@ def r_nat():
 def r_opl():
     # opleidingen
     start = timeit.default_timer()
-    table = 'r_opl'
+    table = 'referentie/r_opl'
     qd = QueryDef(table)
     qry.query(
         qd.outfile,
@@ -50,10 +50,10 @@ def r_opl():
         "    'UC': 'UCU',"
         "    'IVLOS': 'GST',"
         "}"
-        "df.loc[:, 'FACULTEIT'] = df['FACULTEIT'].replace(to_replace=fac_name)"
+        "df.loc[:, 'faculteit'] = df['faculteit'].replace(to_replace=fac_name)"
         )
 
-    pack = qry.load_datapack('r_opl')
+    pack = qry.load_datapack('referentie/r_opl')
     df = pack.frame
     table = pack.table
     query = pack.query
@@ -63,7 +63,7 @@ def r_opl():
         'UC': 'UCU',
         'IVLOS': 'GST',
         }
-    df.loc[:, 'FACULTEIT'] = df['FACULTEIT'].replace(to_replace=fac_name)
+    df.loc[:, 'faculteit'] = df['faculteit'].replace(to_replace=fac_name)
 
     stop = timeit.default_timer()
     sec = stop - start
@@ -82,7 +82,7 @@ def r_opl():
 
 def r_ooa_sl():
     # sl-aanmeldprocessen
-    table = 'r_ooa_sl'
+    table = 'referentie/r_ooa_sl'
     qd = QueryDef(table)
     qry.query(
         qd.outfile,
