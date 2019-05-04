@@ -145,7 +145,6 @@ def save_datapack(pack):
     # update query overview
     file = PATH_OUTPUT / '_queries_overview_.xlsx'
     cols = [k for k in pack._fields if k != 'table' and k != 'frame']
-    print(cols)
     pack_dict = pack._asdict()
     df = pd.read_excel(file, index_col=0)
     if table in df.index:
