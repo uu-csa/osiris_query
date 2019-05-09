@@ -11,8 +11,24 @@ class QueryDef:
     ========
     Class for loading and accessing query definitions.
     Initialize by passing the name of the query in PATH_INPUT.
+    Passing in parameters is also necessary if the query contains any.
+
+    Generally, the parameters are joined as string and added to the table name.
+    In case this is not preferable, pass a string to `param_repr` that will be
+    used instead of tje joined parameters.
+
+    Attributes
+    ==========
+    query_name : name of the config file where the query is stored as string
+    parameters : dictionary of parameter names and their values if any
+    description : string containing a description of the query if any
+    qtype : string representing the type of query
+    sql : string representing the sql
+    columns : list of column names
+    dtypes : list of dtypes to set the respective columns to
     """
-    def __init__(self, query_name, parameters=None):
+
+    def __init__(self, query_name, parameters=None, param_repr=None):
         self.query_name = query_name
         self.parameters = parameters
 
@@ -31,7 +47,9 @@ class QueryDef:
         self.remove_duplicates = querydef.remove_duplicates
 
         param_string = None
-        if parameters is not None:
+        if param_repr is not None:
+            param_string = param_repr
+        elif parameters is not None:
             param_values = [parameters[k] for k in parameters]
             param_values.insert(0, 'var')
             param_string = '_'.join(param_values)
@@ -51,7 +69,7 @@ class QueryDef:
 
         Returns
         =======
-        :load_querydef: tuple
+        :load_querydef: namedtuple
             - description of query as string
             - sql statement as string
             - column names as list
