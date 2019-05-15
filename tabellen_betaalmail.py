@@ -1,11 +1,8 @@
 import timeit
 start = timeit.default_timer()
-
-import pickle
 import argparse
-import pandas as pd
-import src.query as qry
 from src.querydef import QueryDef
+from src.query import Query, connect, run_query
 
 
 # PARSE COMMAND LINE ARGUMENTS
@@ -18,32 +15,22 @@ arg = parser.parse_args()
 parameters = vars(arg)
 
 # CONNECT TO DATABASE
-cursor = qry.connect()
+cursor = connect()
 
 # QUERIES TO RUN
 queries = [
-    'b_sih',
-    'b_opl',
-    'b_stop',
-    'b_adr_nl',
-    'b_ooa_aan',
-    'b_fin_storno',
-    'b_fin_grp',
+    's_sih',
+    's_opl',
+    's_stop',
+    's_adr_nl',
+    's_ooa_aan',
+    's_fin_storno',
+    's_fin_grp',
 ]
 
 # RUN QUERIES
 for query in queries:
-    qd = QueryDef(f"betaalmail/{query}", parameters=parameters)
-    qry.query(
-        qd.outfile,
-        qd.sql,
-        cursor=cursor,
-        description = qd.description,
-        qtype=qd.qtype,
-        columns=qd.columns,
-        dtypes=qd.dtypes,
-        remove_duplicates=qd.remove_duplicates,
-        )
+    run_query(f"betaalmail/{query}", cursor=cursor, parameters=parameters)
 
 # STOP TIMER AND PRINT RUNTIME
 stop = timeit.default_timer()

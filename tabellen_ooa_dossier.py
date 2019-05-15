@@ -2,8 +2,7 @@ import timeit
 start = timeit.default_timer()
 
 import argparse
-import pandas as pd
-import src.query as qry
+from src.query import Query, connect
 from src.querydef import QueryDef
 
 
@@ -60,25 +59,14 @@ parameters = {
     'status_besluit': criterium
 }
 
-
 # CONNECT TO DATABASE
-cursor = qry.connect()
-
+cursor = connect()
 
 # RUN SQL QUERY
-query = 's_ooa_dos'
-qd = QueryDef(f"{query}", parameters=parameters)
-qry.query(
-    qd.outfile,
-    qd.sql,
-    cursor=cursor,
-    description = qd.description,
-    qtype=qd.qtype,
-    columns=qd.columns,
-    dtypes=qd.dtypes,
-    remove_duplicates=qd.remove_duplicates,
-    )
-
+query = 'ooa/s_ooa_dos'
+qd = QueryDef.from_file(query, parameters=parameters, param_repr=key)
+q_out = Query.from_qd(qd, cursor=cursor)
+q_out.to_pickle()
 
 # STOP TIMER AND PRINT RUNTIME
 stop = timeit.default_timer()

@@ -1,11 +1,8 @@
 import timeit
 start = timeit.default_timer()
-
-import pickle
 import argparse
-import pandas as pd
-import src.query as qry
 from src.querydef import QueryDef
+from src.query import Query, connect, run_query
 
 
 # PARSE COMMAND LINE ARGUMENTS
@@ -18,7 +15,7 @@ arg = parser.parse_args()
 parameters = vars(arg)
 
 # CONNECT TO DATABASE
-cursor = qry.connect()
+cursor = connect()
 
 # QUERIES TO RUN
 queries = [
@@ -28,91 +25,16 @@ queries = [
     's_stop',
     's_stat',
     's_adr',
-    's_ooa_aan',
-    's_ooa_rub',
     's_fin',
-    # 's_fin_storno',
+    's_fin_grp',
+    's_fin_storno',
 ]
 
 # RUN QUERIES
 for query in queries:
-    qd = QueryDef(query, parameters=parameters)
-    qry.query(
-        qd.outfile,
-        qd.sql,
-        cursor=cursor,
-        description = qd.description,
-        qtype=qd.qtype,
-        columns=qd.columns,
-        dtypes=qd.dtypes,
-        remove_duplicates=qd.remove_duplicates,
-        )
-
-# SET VARIABLES
-parameters['collegejaar_xx'] = arg.collegejaar[2:]
-
-# QUERIES TO RUN
-queries = [
-    # 's_fin_grp',
-]
-
-for query in queries:
-    qd = QueryDef(query, parameters=parameters)
-    qry.query(
-        qd.outfile,
-        qd.sql,
-        cursor=cursor,
-        description = qd.description,
-        qtype=qd.qtype,
-        columns=qd.columns,
-        dtypes=qd.dtypes,
-        remove_duplicates=qd.remove_duplicates,
-        )
-
+    run_query(f'monitor/{query}', cursor=cursor, parameters=parameters)
 
 # STOP TIMER AND PRINT RUNTIME
 stop = timeit.default_timer()
 sec = stop - start
 print(f"\n{'=' * 80}\nTotal runtime: {sec} seconds.")
-
-
-
-# # load query tables
-# start = timeit.default_timer()
-
-# qry = """
-# df = df_sih.merge(df_sop, how='left', on='sih.SINH_ID')
-# df['sop.AANVANGSJAAR_OPLEIDING'] = df['sop.AANVANGSJAAR_OPLEIDING'].fillna(2018)
-# """
-
-# pack = query.load_query(f'sih_{collegejaar}')
-# df_sih = pack['frame']
-# source = pack['source']
-# table = source[0]['table']
-
-# pack = query.load_query(f'sop_{collegejaar}')
-# df_sop = pack['frame']
-# table = source[0]['table']
-# source.extend(pack['source'])
-
-# # merge tables
-# df = df_sih.merge(df_sop, how='left', on='sih.SINH_ID')
-# col = 'sop.AANVANGSJAAR_OPLEIDING'
-# df[col] = df[col].fillna(collegejaar)
-
-# stop = timeit.default_timer()
-# sec = stop - start
-# print(table, sec)
-
-# # pack data
-# source = {
-#     'source': source,
-#     'table': table,
-#     'query': qry,
-#     'timer': sec,
-# }
-# pack = {
-#     'source': [source],
-#     'frame': df,
-# }
-# query.save_query(table, pack)
