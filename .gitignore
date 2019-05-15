@@ -1,8 +1,8 @@
 __pycache__/
 .vscode/
 .ipynb_checkpoints/
-query_outputs/*
-!query_outputs/.gitkeep
+output/*
+!output/.gitkeep
 testing/*
 !testing/.gitkeep
 *.code-workspace
