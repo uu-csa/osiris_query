@@ -1,6 +1,8 @@
 # OSIRIS queries via odbc
 *Tools om OSIRIS queries te definiëren, uit te voeren en op te slaan*
-- - -
+
+---
+
 L.C. Vriend
 
 Met deze tool kun je de OSIRIS tabellen via SQL benaderen en de resultaten voor verdere bewerking als `DataFrame` opslaan. Bovendien zorgt de tool voor een gestructureerde manier om de queries en de resultaten te organiseren. In de basis bestaat de tool uit de volgende onderdelen:
@@ -13,6 +15,8 @@ Met deze tool kun je de OSIRIS tabellen via SQL benaderen en de resultaten voor 
 | Code       |
 
 De query definities worden beheerd in de map 'queries'. Met behulp van de scripts kunnen de queries worden uitgevoerd. De resultaten worden vervolgens in de map 'output' opgeslagen.
+
+---
 
 ## Query definities
 Een query is in de simpelste vorm een SQL statement in een text-bestand. Het is echter mogelijk om aanvullende informatie aan de query toe te voegen. Hiervoor dien je de query te definiëren volgens een vaste structuur. In [dit voorbeeld](https://github.com/uu-csa/osiris_query/blob/master/queries/_template_.ini) staat een uitgebreide toelichting hoe een dergelijk configuratiebestand eruit ziet.
@@ -42,6 +46,8 @@ Variabele | Slice | Resultaat
 2019      | (:3)  | 20
 2019      | (2:)  | 19
 
+---
+
 ## Query resultaten
 De output wordt via de [pickle](https://docs.python.org/3/library/pickle.html?highlight=pickle#module-pickle) routine opgeslagen in `.pkl` formaat. Het outputbestand bevat:
 
@@ -49,6 +55,8 @@ De output wordt via de [pickle](https://docs.python.org/3/library/pickle.html?hi
 2. De query definitie met metadata
 
 Deze gegevens zijn met de `read_pickle` functie in de `query` module in te laden.
+
+---
 
 ## Code
 De code is opgebouwd rond twee objecten (`classes`):
@@ -64,9 +72,8 @@ Deze objecten worden via scripts opgeroepen.
 
 De koppeling naar OSIRIS gebeurt op basis van [pyodbc](https://github.com/mkleehammer/pyodbc/wiki). De geïnstalleerde odbc-driver op UU-computers is 32-bit. Om deze driver te kunnen gebruiken, moet je een 32-bit versie van Python gebruiken. Dit kan door binnen Anaconda een virtual environment op te zetten. Start de omgeving vervolgens als volgt op (evt. via het [`run_env.bat`](https://github.com/uu-csa/osiris_query/blob/master/run_env.bat) commando bijgevoegd in deze repo):
 
-> set CONDA_FORCE_32BIT = 1
->
-> activate py32
+> `set CONDA_FORCE_32BIT = 1`  
+> `activate py32`
 
 In de command prompt kun je een script met het volgende commando uitvoeren:
 
