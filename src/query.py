@@ -1,45 +1,107 @@
-# set CONDA_FORCE_32BIT = 1
-# activate py32
-
 import pyodbc
 import datetime
 import timeit
 import pickle
-import functools
 import pandas as pd
-from collections import namedtuple
+from .utils import reporter
 from .config import PATH_LOGIN, PATH_OUTPUT
+from .querydef import QueryDef
 
 
-PACK_COLUMNS = [
-    'table',
-    'description',
-    'qtype',
-    'source',
-    'query',
-    'dtime',
-    'timer',
-    'nrecords',
-    'frame',
-    ]
-Pack = namedtuple('Pack', PACK_COLUMNS)
+class Query:
+    def __init__(self, qd, frame, sec=None):
+        self.qd = qd
+        self.frame = frame
+        self.nrecords = len(frame)
+        self.timer = sec
+        self.dtime = datetime.datetime.now()
 
+    @classmethod
+    @reporter
+    def from_qd(cls, qd, cursor=None):
+        """
+        Construct Query from QueryDef.
+        Run sql-query on the OSIRIS database and return Query instance.
 
-def reporter(func):
-    @functools.wraps(func)
-    def wrapper_reporter(*args, **kwargs):
-        args_repr = [a for a in args]
-        kwargs_repr = [f'{k}={v!r}' for k, v in kwargs.items()]
-        signature = '\n\n'.join(args_repr + kwargs_repr)
-        print("=" * 80)
-        print(f"CALLING {func.__name__!r}")
-        print("=" * 80)
-        print(f"{signature}")
-        value = func(*args, **kwargs)
-        print("-" * 80)
-        print(f"{func.__name__!r} returned {value!r}\n")
-        return value
-    return wrapper_reporter
+        - Lookup login details from u:/uustprd.txt
+        - Connect to database
+        - Fetch records
+        - (Optionally) Rename columns
+        - (Optionally) Recast dtypes
+        - Pack (meta)data in namedtuple
+
+        Parameters
+        ==========
+        :param qd: `QueryDef`
+            Instance of `QueryDef` containing the query definition.
+
+        Optional parameters
+        ===================
+        :param cursor: `cursor`, default `None`
+            ODBC-connection to the database.
+            If None the constructor will establish connection.
+
+        Return
+        ======
+        :query: table name as `string`, sec as `float`
+        """
+
+        # connection
+        if not cursor:
+            cursor = connect()
+
+        # fetch records
+        start = timeit.default_timer()
+        cursor.execute(qd.sql)
+        df = pd.DataFrame.from_records(
+            cursor.fetchall(),
+            columns=list(qd.columns.keys())
+            )
+
+        dtypes = {k: v for k, v in qd.columns.items() if v is not None}
+        if dtypes:
+            df = df.astype(dtypes)
+        stop = timeit.default_timer()
+        sec = stop - start
+
+        return cls(qd, df, sec=sec)
+
+    def to_pickle(self, path=None):
+        """
+        Save Query to pickle.
+
+        Optional key-word arguments
+        ===========================
+        :param path: `Path`
+            Path to store pickled Query.
+        """
+        if not path:
+            path = PATH_OUTPUT / f'{self.qd.outfile}.pkl'
+
+        # pickle pack
+        with open(path, 'wb') as f:
+            pickle.dump(self, f)
+
+        # update query overview
+        path = PATH_OUTPUT / '_queries_overview_.xlsx'
+
+        query_data = vars(self.qd).copy()
+        del query_data['outfile']
+        query_data.update(vars(self))
+        for key in ['frame', 'qd']:
+            del query_data[key]
+
+        cols = list(query_data.keys())
+        vals = list(query_data.values())
+
+        df = pd.read_excel(path, index_col=0)
+        if path in df.index:
+            df = df.drop(index=path)
+        row = {path: vals}
+        df_row = pd.DataFrame.from_dict(row, orient='index', columns=cols)
+        df = df.append(df_row, sort=False)
+        df.to_excel(path)
+        return None
 
 
 @reporter
@@ -55,126 +117,14 @@ def connect():
     return conn.cursor()
 
 
-@reporter
-def query(
-    table,
-    sql,
-    cursor=None,
-    description=None,
-    qtype=None,
-    columns=None,
-    dtypes=None,
-    remove_duplicates=False
-    ):
-    """
-    Run sql-query on the OSIRIS database and return the results as a DataFrame, pack and pickle metadata (table name, query, time) with the DataFrame.
-
-    - Lookup login details from u:/uustprd.txt
-    - Connect to database
-    - Fetch records
-    - (Optionally) Rename columns
-    - (Optionally) Recast dtypes
-    - (Optionally) Remove duplicate rows
-    - Pack and pickle (meta)data
-
-    Parameters
-    ==========
-    :param table: `string`
-        Name for the output table (used in metadata and as name for the .pkl file).
-    :param sql: `string`
-        sql query.
-
-    Optional parameters
-    ===================
-    :paramn cursor: odbc cursor, default None
-        If None the function will establish connection.
-    :param columns: list, default None
-        List of column names. If None column names will be inferred from sql.
-    :param dtypes: dict, default None
-        Dict of column name / dtype pairs.
-    :param remove_duplicates: boolean, default False
-        Remove duplicates from output if True.
-
-    Return
-    ======
-    :query: table name as `string`, sec as `float`
-    """
-
-    # connection
-    if not cursor:
-        cursor = connect()
-
-    # fetch records
-    start = timeit.default_timer()
-    cursor.execute(sql)
-    df = pd.DataFrame.from_records(cursor.fetchall(), columns=columns)
-    if remove_duplicates:
-        df = df.drop_duplicates()
-    if dtypes:
-        df = df.astype(dtypes)
-    stop = timeit.default_timer()
-    sec = stop - start
-
-    pack = pack_data(
-        table=table,
-        description=description,
-        qtype=qtype,
-        source=None,
-        query=sql,
-        timer=sec,
-        frame=df,
-        nrecords=len(df),
-        )
-    save_datapack(pack)
-
-    return table, sec
+def read_pickle(query_name):
+    with open(PATH_OUTPUT / f'{query_name}.pkl', 'rb') as f:
+        return pickle.load(f)
 
 
-def pack_data(**kwargs):
-    kwargs['dtime'] = datetime.datetime.now()
-    pack = Pack(**kwargs)
-    return pack
-
-
-def save_datapack(pack):
-    # pickle pack
-    table = pack.table
-    with open(PATH_OUTPUT / f'{table}.pkl', 'wb') as f:
-        pickle.dump(pack, f)
-
-    # update query overview
-    file = PATH_OUTPUT / '_queries_overview_.xlsx'
-    cols = [k for k in pack._fields if k != 'table' and k != 'frame']
-    pack_dict = pack._asdict()
-    df = pd.read_excel(file, index_col=0)
-    if table in df.index:
-        df = df.drop(index=table)
-    row = {table: [pack_dict[k] for k in pack_dict if k in cols]}
-    df_row = pd.DataFrame.from_dict(row, orient='index', columns=cols)
-    df = df.append(df_row, sort=False)
-    df.to_excel(file)
+def run_query(query_name, cursor=None, parameters=None):
+    # nationaliteiten
+    qd = QueryDef.from_file(query_name, parameters=parameters)
+    q = Query.from_qd(qd, cursor=cursor)
+    q.to_pickle()
     return None
-
-
-def load_datapack(table):
-    with open(PATH_OUTPUT / f'{table}.pkl', 'rb') as f:
-        pack = pickle.load(f)
-    return pack
-
-
-def load_frame(table, strip_col=True):
-    pack = load_datapack(table)
-    frame = pack.frame
-
-    if strip_col:
-        def strip_dot(x):
-            if '(' in x:
-                sub = x[x.find('(') + 1:x.rfind(')')]
-                if '.' in sub:
-                    x = x.replace(sub, sub.split('.')[1])
-            if '.' in x:
-                x = x.split('.')[1]
-            return x
-        frame.columns = [strip_dot(col) for col in frame.columns]
-
-    return frame

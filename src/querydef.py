@@ -9,85 +9,89 @@ class QueryDef:
     """
     QueryDef
     ========
-    Class for loading and accessing query definitions.
-    Initialize by passing the name of the query in PATH_INPUT.
-    Passing in parameters is also necessary if the query contains any.
+    Class for storing query definitions.
+    Use the constructor `from_file` to initialize from the query file in
+    PATH_INPUT. Passing in parameters is necessary if the query contains any.
 
-    Generally, the parameters are joined as string and added to the table name.
+    The outfile name is the name where the query results
+    Normally, the parameters are joined as string and added to the outfile name.
     In case this is not preferable, pass a string to `param_repr` that will be
-    used instead of tje joined parameters.
+    used instead of the joined parameters.
 
     Attributes
     ==========
-    query_name : name of the config file where the query is stored as string
-    parameters : dictionary of parameter names and their values if any
-    description : string containing a description of the query if any
-    qtype : string representing the type of query
-    sql : string representing the sql
-    columns : list of column names
-    dtypes : list of dtypes to set the respective columns to
+    query_name : name of the query as string
+    description : description of the query as string
+    qtype : query type as string
+    sql : sql statement as string
+    columns : column names as list
+    dtypes : column, dtype pairs as dictionary
+    outfile : filename for storing the query results as string
     """
 
-    def __init__(self, query_name, parameters=None, param_repr=None):
+    def __init__(
+        self,
+        query_name,
+        sql,
+        description=None,
+        qtype=None,
+        columns=None,
+        dtypes=None,
+        param_repr=None,
+        ):
+
         self.query_name = query_name
-        self.parameters = parameters
-
-        querydef = self.load_querydef(query_name)
-        self.description = querydef.description
-        if self.description is not None:
-            self.description = self.set_param(
-                self.description, parameters=parameters
-                )
-        else:
-            self.description = None
-        self.qtype = querydef.qtype
-        self.sql = self.set_param(querydef.sql, parameters=parameters)
-        self.columns = querydef.columns
-        self.dtypes = querydef.dtypes
-        self.remove_duplicates = querydef.remove_duplicates
-
-        param_string = None
-        if param_repr is not None:
-            param_string = param_repr
-        elif parameters is not None:
-            param_values = [parameters[k] for k in parameters]
-            param_values.insert(0, 'var')
-            param_string = '_'.join(param_values)
+        self.qtype = qtype
+        self.description = description
+        self.param_repr = param_repr
+        self.columns = columns
+        self.sql = sql
         self.outfile = '_'.join(
-            [x for x in [query_name, param_string] if x is not None]
+            [x for x in [query_name, param_repr] if x is not None]
             )
 
 
-    def load_querydef(self, query_name):
+    def __str__(self):
+        repr = (
+            f"{self.__class__.__name__}\n"
+            f"{'-' * 80}\n"
+            f"{self.query_name!r}\n"
+            f"{'-' * 80}\n"
+            f"{self.sql}\n"
+            f"{'-' * 80}\n"
+            f"Description = {self.description}\n"
+            f"Query type = {self.qtype}\n"
+            )
+        return repr
+
+
+    @classmethod
+    def from_file(cls, query_name, parameters=None, param_repr=None):
         """
-        Load query definition from file.
+        Construct QueryDef from file.
 
         Parameters
         ==========
-        :param query_name: str
-            Name of the query to load (without extension).
+        :param query_name: `str`
+            Name of the file to load from the PATH_INPUT folder.
+            (Suffix optional).
+
+        Optional keyword arguments
+        ==========================
+        :param parameters: `dict`
+            Dictionary of parameters.
+        :param param_repr: `str`
+            String to be used for representing passed in parameters.
 
         Returns
         =======
-        :load_querydef: namedtuple
-            - description of query as string
-            - sql statement as string
-            - column names as list
-            - columns/dtypes as dictionary
-            - remove duplicates as boolean
+        :from_file: `QueryDef` instance
         """
 
-        tuple_names = [
-            'description',
-            'qtype',
-            'sql',
-            'columns',
-            'dtypes',
-            'remove_duplicates'
-            ]
-        querydef = namedtuple('querydef', tuple_names)
+        path = PATH_INPUT / query_name
+        ini_file = path.with_suffix('.ini')
 
-        ini_file = PATH_INPUT / f"{query_name}.ini"
+        # read .ini file
         if ini_file.exists():
             ini = configparser.ConfigParser(
                 allow_no_value=True,
@@ -95,45 +99,43 @@ class QueryDef:
                 )
             ini.read(ini_file, encoding='utf-8')
 
-            # description
-            try:
-                description = ini['query']['description'].strip('\n')
-            except KeyError:
-                description = None
+            meta    = ini['meta']
+            query   = ini['query']
+            columns = ini['columns']
 
-            # qtype
-            try:
-                qtype = ini['query']['qtype']
-            except KeyError:
-                qtype = None
+            description = meta.get('description', '').strip('\n')
+            description = cls.set_param(description, parameters)
+            qtype       = meta.get('qtype', '')
+            sql         = cls.set_param(query['sql'], parameters)
+            sql         = format_sql(sql)
 
-            # sql statement
-            sql = format_sql(ini['query']['sql'])
-
-            # columns
             try:
-                columns = ini['columns']
                 columns = {k:columns[k] for k in columns}
-                colnames = [k for k in columns]
-                dtypes = {k: v for k, v in columns.items() if v is not None}
             except KeyError:
-                colnames = self.find_cols(sql)
-                dtypes = None
+                columns = cls.find_cols(sql)
 
-            # remove duplicates
-            try:
-                remove_duplicates = ini.getboolean('duplicates', 'remove')
-            except KeyError:
-                remove_duplicates = None
-
-            return querydef(
-                description, qtype, sql, colnames, dtypes, remove_duplicates
-                )
+        # read as text
         else:
-            txt_file = PATH_INPUT / f'{query_name}.txt'
-            sql = txt_file.read_text()
-            return querydef(None, None, sql, self.find_cols(sql), None, None)
+            sql = path.read_text()
+            sql = format_sql(cls.set_param(sql, parameters))
+            columns = cls.find_cols(sql)
 
+        # set string representation for parameters
+        if param_repr is not None:
+            param_repr = f'var_{param_repr}'
+        elif parameters is not None:
+            param_values = [str(v) for v in parameters.values()]
+            param_values.insert(0, 'var')
+            param_repr = '_'.join(param_values)
+
+        return cls(
+            query_name,
+            sql,
+            description=description,
+            qtype=qtype,
+            columns=columns,
+            param_repr=param_repr,
+            )
 
     @staticmethod
     def set_param(x, parameters=None):
@@ -144,8 +146,8 @@ class QueryDef:
         ==========
         :param x : `string`
 
-        Optional parameters
-        ===================
+        Optional keyword arguments
+        ==========================
         param parameters : `dict`, default `None`
             Dictionary of parameters to be replaced in the string.
 
@@ -178,7 +180,8 @@ class QueryDef:
     def find_cols(sql):
         """
         Extract column names from sql statement.
-        - Select lines between 'select' and 'from'
+        - Select lines between 'select' and 'from'.
+        - Strip the part before the dot if present.
         - If line contains 'as' extract name from that.
 
         Parameters
@@ -189,6 +192,15 @@ class QueryDef:
         ======
         :find_cols: column names as `list` of `strings`
         """
+
+        def strip_dot(x):
+            if '(' in x:
+                sub = x[x.find('(') + 1:x.rfind(')')]
+                if '.' in sub:
+                    x = x.replace(sub, sub.split('.')[1])
+            if '.' in x:
+                x = x.split('.')[1]
+            return x
 
         def alias(x):
             key_word = ' as '
@@ -203,7 +215,8 @@ class QueryDef:
                 continue
             if 'from' in line:
                 break
-            line = line.strip(' ,').replace('OST_', '')
+            line = line.strip(' ,')
+            line = strip_dot(line)
             cols.append(line)
         return [alias(col) for col in cols]
 
