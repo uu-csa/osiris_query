@@ -124,6 +124,11 @@ def read_pickle(query_name):
         return pickle.load(f)
 
 
+def load_frame(query_name):
+    q = read_pickle(query_name)
+    return q.frame
+
+
 def run_query(query_name, cursor=None, parameters=None):
     # nationaliteiten
     qd = QueryDef.from_file(query_name, parameters=parameters)
