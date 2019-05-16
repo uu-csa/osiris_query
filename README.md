@@ -79,19 +79,41 @@ In de command prompt kun je een script met het volgende commando uitvoeren:
 
 > `python.exe <naam script> <argumenten>`
 
-Op dit moment zijn de volgende scripts beschikbaar.
+Op dit moment zijn de volgende scripts met onderliggende queries beschikbaar.
 
-1. tabellen_referentie.py
-2. tabellen_basis.py - verplicht argument: collegejaar
-
-    * s_sih: student_inschrijfhistorie
-    * s_opl: student_opleiding
-    * s_stu: student_student
-    * s_adr: student_adres
-    * s_ooa: student_aanmelddossiers
-    * s_rub: student_aanmelddossiers_rubriekstatussen
-    * s_fin: student_financiële_regels
-3. tabellen_ooa_dossier.py - verplicht argument: procescode
-4. tabellen_ad_hoc.py - verplicht argument: naam ad hoc sql
-5. tabellen_betaalmail.py - verplicht argument: collegejaar
-6. tabellen_ad_hoc.py
+| Script                | Doel                                      | Argumenten
+| --------------------- | ----------------------------------------- | ----------
+| **q_referentie.py**   | Referentietabellen                        |
+| * r_nat               | * nationaliteiten                         |
+| * r_ooa_sl            | * ooa_processen                           |
+| * r_opl               | * opleidingen                             |
+| **q_monitor.py**      | Monitor algemene inschrijfprocessen       | collegejaar
+| *inschrijfregels*     |                                           |
+| * s_sih               | * student_inschrijfhistorie               |
+| * s_opl               | * student_opleiding                       |
+| * s_stop              | * student_stoplicht                       |
+| * s_stat              | * student_instellingstatus_opleiding      |
+| *persoonsgegevens*    |                                           |
+| * s_stud              | * student_student                         |
+| * s_adr               | * student_adres                           |
+| *financiële regels*   |                                           |
+| * s_fin               | * student_financiële_regels               |
+| * s_fin_grp           | * student_groep (financiële groepen)      |
+| * s_fin_storno        | * student_vrije_velden (stornogegevens)   |
+| **q_ooa_dossier.py**  | Inhoud ooa dossier (vragen en checklist)  | procescode
+| * s_ooa_dos           | * student_ooa_dossier                     |
+| **q_betaalmail.py**   | Selecties voor de betaalmail (alleen vti) | collegejaar
+| *inschrijfregels*     |                                           |
+| * s_sih               | * student_inschrijfhistorie               |
+| * s_opl               | * student_opleiding                       |
+| * s_stop              | * student_stoplicht                       |
+| *persoonsgegevens*    |                                           |
+| * s_stud              | * student_student                         |
+| * s_adr               | * student_adres                           |
+| *aanmeldprocessen*    |                                           |
+| * s_ooa_aan           | * student_ooa_processen                   |
+| *financiële gegevens* |                                           |
+| * s_vrij              | * student_vrije_velden (stornogegevens)   |
+| * s_grp               | * student_groep (financiële groepen)      |
+| * r_grp               | * groepen                                 |
+| **q_ad_hoc.py**       | Script om ad hoc queries te draaien       | naam ad hoc query
