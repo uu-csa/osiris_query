@@ -79,6 +79,8 @@ class Query:
             path = PATH_OUTPUT / f'{self.qd.outfile}.pkl'
 
         # pickle pack
+        if not path.parent.exists():
+            path.parent.mkdir(parents=True)
         with open(path, 'wb') as f:
             pickle.dump(self, f)
 
