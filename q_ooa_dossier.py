@@ -21,11 +21,12 @@ parser.add_argument(
     )
 parser.add_argument(
     'status_besluit',
-    choices=['I', 'A', 'T'],
+    choices=['I', 'A', 'F', 'T'],
     help=(
-        'I: Ingediende formulieren\n'
-        'A: Afgehandelde formulieren\n'
-        'T: Alle ingevulde formulieren'
+        'I: Ingediend en in behandeling\n'
+        'A: Afgehandeld en toegelaten\n'
+        'F: Afgehandeld, toegelaten of afgewezen\n'
+        'T: Ingediend en/of toegelaten'
         )
     )
 args = parser.parse_args()
@@ -37,6 +38,7 @@ args = parser.parse_args()
 status = {
     'I': ['I', 'B',],
     'A': ['G', 'F',],
+    'F': ['G', 'G', 'F', 'F',],
     'T': ['I', 'B', 'G', 'F',],
 }
 
@@ -45,6 +47,7 @@ status = {
 besluit = {
     'I': [None, None,],
     'A': ['T', 'T',],
+    'F': ['A', 'T', 'A', 'T',],
     'T': [None, None, 'T', 'T',],
 }
 
@@ -52,7 +55,8 @@ key = args.status_besluit
 status = set_criteria(status[key])
 besluit = set_criteria(besluit[key])
 status_besluit = combine_criteria(list(zip(status, besluit)))
-criterium = f"({' or '.join(status_besluit)})"
+joint = ' \nor '
+criterium = f"({joint.join(status_besluit)})"
 
 parameters = {
     'proces': args.proces,
