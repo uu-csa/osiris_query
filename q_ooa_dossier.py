@@ -64,7 +64,10 @@ cursor = connect()
 
 # RUN SQL QUERY
 query = 'ooa/s_ooa_dos'
-qd = QueryDef.from_file(query, parameters=parameters, param_repr=key)
+qd = QueryDef.from_file(
+    query,
+    parameters=parameters,
+    param_repr=f'{args.proces}_{args.status_besluit}')
 q_out = Query.from_qd(qd, cursor=cursor)
 q_out.to_pickle()
 
