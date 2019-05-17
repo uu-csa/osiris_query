@@ -85,7 +85,7 @@ class Query:
             pickle.dump(self, f)
 
         # update query overview
-        path = PATH_OUTPUT / '_queries_overview_.xlsx'
+        path_overview = PATH_OUTPUT / '_queries_overview_.xlsx'
 
         query_data = vars(self.qd).copy()
         del query_data['outfile']
@@ -96,13 +96,16 @@ class Query:
         cols = list(query_data.keys())
         vals = list(query_data.values())
 
-        df = pd.read_excel(path, index_col=0)
+        try:
+            df = pd.read_excel(path_overview, index_col=0)
+        except FileNotFoundError:
+            df = pd.DataFrame()
         if path in df.index:
             df = df.drop(index=path)
         row = {path: vals}
         df_row = pd.DataFrame.from_dict(row, orient='index', columns=cols)
         df = df.append(df_row, sort=False)
-        df.to_excel(path)
+        df.to_excel(path_overview)
         return None
 
 
