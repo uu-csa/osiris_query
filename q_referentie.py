@@ -33,7 +33,7 @@ def r_opl():
 
 
 if __name__ == '__main__':
-    ref_tables = ['r_nat', 'r_ooa']
+    ref_tables = ['r_nat',]
     for ref in ref_tables:
         run_query(f'referentie/{ref}')
     r_opl()
