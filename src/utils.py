@@ -23,9 +23,9 @@ def reporter(func):
 
 def studnum_to_string(df, colname='studentnummer', print_strings=True):
     """
-    Return the column 'studentnummer' from a `DataFrame` as a string.
+    Print or return the column 'studentnummer' from a `DataFrame` as a string.
     Blocks of 500 numbers are separated by an empty line.
-    This is because OSIRIS accepts a string of max. 500 numbers.
+    This is because OSIRIS accepts a string of max. 500 numbers in its filters.
 
     Parameters
     ==========
