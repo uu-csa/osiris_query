@@ -28,6 +28,7 @@ queries = [
     's_fin',
     's_fin_grp',
     's_fin_storno',
+    's_ooa_aan',
 ]
 
 # RUN QUERIES
