@@ -256,3 +256,7 @@ def format_sql(sql, tab_length=4):
     sql = '\n'.join(lines)
 
     return sql
+
+
+def get_queries(group):
+    return [query.stem for query in (PATH_INPUT / group).glob('*.ini')]
