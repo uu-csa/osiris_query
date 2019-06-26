@@ -123,8 +123,11 @@ class QueryDef:
 
         # read as text
         else:
-            sql = path.read_text()
+            txt_file = path.with_suffix('.txt')
+            sql = txt_file.read_text()
             sql = format_sql(cls.set_param(sql, parameters))
+            description = None
+            qtype = None
             columns = cls.find_cols(sql)
 
         # set string representation for parameters
