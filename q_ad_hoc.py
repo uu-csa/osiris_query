@@ -1,25 +1,25 @@
-# set CONDA_FORCE_32BIT = 1
-# activate py32
-
 import timeit
-import pickle
+start = timeit.default_timer()
 import argparse
-import pandas as pd
-from src import query
+from src.querydef import QueryDef
+from src.query import Query, connect, run_query
 
 
 # PARSE COMMAND LINE ARGUMENTS
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    'sql',
-    help='sql in ad_hoc om uit te voeren.'
+    'query',
+    help="Naam van de uit te voeren query in de map 'ad_hoc'."
     )
 arg = parser.parse_args()
 
+# CONNECT TO DATABASE
+cursor = connect()
 
 # RUN SQL QUERY
-table = arg.sql
-sql = query.read_sql(f'ad_hoc/{table}')
-sec = query.query(
-    f"ad_hoc_{table}", sql
-    )
+run_query(f"ad_hoc/{arg.query}", cursor=cursor, parameters=None)
+
+# STOP TIMER AND PRINT RUNTIME
+stop = timeit.default_timer()
+sec = stop - start
+print(f"\n{'=' * 80}\nTotal runtime: {sec} seconds.")
