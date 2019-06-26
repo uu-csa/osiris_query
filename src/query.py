@@ -53,12 +53,18 @@ class Query:
         # fetch records
         start = timeit.default_timer()
         cursor.execute(qd.sql)
+        if isinstance(qd.columns, dict):
+            cols = qd.columns.keys()
+            dtypes = {k: v for k, v in qd.columns.items() if v is not None}
+        else:
+            cols = qd.columns
+            dtypes = None
+
         df = pd.DataFrame.from_records(
             cursor.fetchall(),
-            columns=list(qd.columns.keys())
+            columns=cols,
             )
 
-        dtypes = {k: v for k, v in qd.columns.items() if v is not None}
         if dtypes:
             df = df.astype(dtypes)
         stop = timeit.default_timer()
