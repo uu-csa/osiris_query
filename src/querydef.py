@@ -31,8 +31,9 @@ class QueryDef:
     description : description of the query as string
     qtype : query type as string
     sql : sql statement as string
-    columns : column names as list
-    dtypes : column, dtype pairs as dictionary
+    columns :
+        - column names as list, or:
+        - column name-dtype pairs as dictionary
     outfile : filename for storing the query results as string
     """
 
@@ -43,7 +44,6 @@ class QueryDef:
         description=None,
         qtype=None,
         columns=None,
-        dtypes=None,
         param_repr=None,
         ):
 
