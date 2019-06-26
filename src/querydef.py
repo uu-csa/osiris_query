@@ -10,12 +10,19 @@ class QueryDef:
     QueryDef
     ========
     Class for storing query definitions.
-    Use the constructor `from_file` to initialize from the query file in
-    PATH_INPUT. Passing in parameters is necessary if the query contains any.
 
-    The outfile name is the name where the query results
-    Normally, the parameters are joined as string and added to the outfile name.
-    In case this is not preferable, pass a string to `param_repr` that will be
+    ## Constructor
+    Use the constructor method `from_file` to initialize an instance of
+    this class from a query file in PATH_INPUT. If the query file contains
+    any parameters, these need to be passed in as well.
+
+    ## Outfile
+    The outfile is the name of the file where the query results will be stored.
+    Normally, the parameters are joined as string and added to the outfile name:
+
+    > [outfile]_var_[parameters]
+
+    In case this is not desirable, pass a string to `param_repr` that will be
     used instead of the joined parameters.
 
     Attributes
