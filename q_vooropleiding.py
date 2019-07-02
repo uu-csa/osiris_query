@@ -19,13 +19,16 @@ cursor = connect()
 
 # QUERIES TO RUN
 queries = [
-    's_vopl',
-    's_vak',
+    'vooropleiding/s_vopl',
+    'vooropleiding/s_vak',
+    'monitor/s_ooa_aan',
+    'monitor/s_sih',
+    'monitor/s_stop',
 ]
 
 # RUN QUERIES
 for query in queries:
-    run_query(f'vooropleiding/{query}', cursor=cursor, parameters=parameters)
+    run_query(query, cursor=cursor, parameters=parameters)
 
 # STOP TIMER AND PRINT RUNTIME
 stop = timeit.default_timer()
