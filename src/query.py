@@ -1,11 +1,17 @@
-import pyodbc
+# standard library
 import datetime
-import timeit
 import pickle
+import timeit
+from collections import namedtuple
+
+# third party
 import pandas as pd
-from .utils import reporter
-from .config import PATH_LOGIN, PATH_OUTPUT
-from .querydef import QueryDef
+import pyodbc
+
+# local
+from src.config import PATH_LOGIN, PATH_OUTPUT
+from src.querydef import QueryDef
+from src.utils import reporter
 
 
 class Query:

@@ -2,8 +2,10 @@
 import timeit
 start = timeit.default_timer()
 import argparse
+import sys
 
 #local
+from src.config import register, PATH_LIB
 from src.querydef import QueryDef
 from src.query import Query, connect, run_query
 
