@@ -1,6 +1,7 @@
 __pycache__/
 .vscode/
 .ipynb_checkpoints/
+queries/speeltuin*/
 output/*
 !output/.gitkeep
 testing/*
