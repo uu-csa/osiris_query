@@ -10,13 +10,12 @@ import pandas as pd
 import pyodbc
 
 # local
-from src.config import PATH_CONFIG, PATH_LOGIN, PATH_OUTPUT
+from src.config import PATH_CONFIG, PATH_LOGIN, PATH_OUTPUT, load_registry
 from src.querydef import QueryDef
 from src.utils import reporter
 
 
-with open(PATH_CONFIG / 'queries.json', 'r') as f:
-    QUERIES = json.loads(f.read())
+QUERIES = load_registry(PATH_CONFIG / 'queries.json')
 
 
 class Query:
