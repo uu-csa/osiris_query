@@ -1,5 +1,6 @@
 # standard library
 import datetime
+import json
 import pickle
 import timeit
 from collections import namedtuple
@@ -9,9 +10,13 @@ import pandas as pd
 import pyodbc
 
 # local
-from src.config import PATH_LOGIN, PATH_OUTPUT
+from src.config import PATH_CONFIG, PATH_LOGIN, PATH_OUTPUT
 from src.querydef import QueryDef
 from src.utils import reporter
+
+
+with open(PATH_CONFIG / 'queries.json', 'r') as f:
+    QUERIES = json.loads(f.read())
 
 
 class Query:
@@ -112,8 +117,6 @@ class Query:
             df = pd.read_excel(path_overview, index_col=0)
         except FileNotFoundError:
             df = pd.DataFrame()
-        if path in df.index:
-            df = df.drop(index=path)
         row = {path: vals}
         df_row = pd.DataFrame.from_dict(row, orient='index', columns=cols)
         df = df.append(df_row, sort=False)
@@ -139,13 +142,54 @@ def read_pickle(query_name):
         return pickle.load(f)
 
 
+def load_set(query_set, parameters=None):
+    """
+    Load a set of queries as defined in config/queries.json.
+
+    Parameters
+    ==========
+    :param query_set: `str`
+        Name of the query set as string.
+
+    Optional key-word arguments
+    ===========================
+    :param parameters: `str` or `list`, default=None
+        Parameters in order for finding the correct name.
+        See `QueryDef`.
+
+    Returns
+    =======
+    :load_set: `namedtuple`
+        Namedtuple containing all `DataFrames` in the query set.
+    """
+
+    def get_name(x):
+        x = x.split('/')[1]
+        if '_' in x[:2]:
+            return x[2:]
+        return x
+
+    queries = QUERIES[query_set]['queries']
+
+    if parameters:
+        if not isinstance(parameters, list):
+            parameters = [parameters]
+
+    DataSet = namedtuple('DataSet', [get_name(q) for q in queries])
+    return DataSet(
+        **{
+            get_name(q):load_frame(f"{q}_var_{'_'.join(parameters)}")
+            for q in queries
+            }
+        )
+
+
 def load_frame(query_name):
     q = read_pickle(query_name)
     return q.frame
 
 
 def run_query(query_name, cursor=None, parameters=None):
-    # nationaliteiten
     qd = QueryDef.from_file(query_name, parameters=parameters)
     q = Query.from_qd(qd, cursor=cursor)
     q.to_pickle()
