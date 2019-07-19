@@ -1,0 +1,51 @@
+{
+    "monitor inschrijving": {
+        "queries": [
+            "monitor/s_sih",
+            "monitor/s_opl",
+            "monitor/s_stud",
+            "monitor/s_stop",
+            "monitor/s_stat",
+            "monitor/s_adr",
+            "monitor/s_fin",
+            "monitor/s_fin_grp",
+            "monitor/s_fin_storno",
+            "monitor/s_ooa_aan"
+        ],
+        "parameters": [
+            "collegejaar"
+        ]
+    },
+    "vooropleiding": {
+        "queries": [
+            "vooropleiding/s_vopl",
+            "vooropleiding/s_vak",
+            "vooropleiding/s_stud",
+            "betaalmail/s_ooa_aan",
+            "betaalmail/s_opl",
+            "betaalmail/s_stop",
+            "monitor/s_sih",
+            "monitor/s_stat"
+        ],
+        "parameters": [
+            "collegejaar"
+        ]
+    },
+    "referentie ooa": {
+        "queries": [
+            "referentie/ooa/r_ooa_sl",
+            "referentie/ooa/r_ooa_ps"
+        ],
+        "parameters": [
+            "procesnaam"
+        ]
+    },
+    "ad hoc": {
+        "queries": [
+            "nvt"
+        ],
+        "parameters": [
+            "query_naam"
+        ]
+    }
+}
