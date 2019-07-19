@@ -34,4 +34,4 @@ if %selection% == 7 set query=q_referentie_ooa
 call python.exe %query%.py %vars%
 
 @echo.
-cmd /k
+pause
