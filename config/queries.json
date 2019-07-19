@@ -16,7 +16,7 @@
             "collegejaar"
         ]
     },
-    "vooropleiding": {
+    "monitor vooropleiding": {
         "queries": [
             "vooropleiding/s_vopl",
             "vooropleiding/s_vak",
@@ -29,6 +29,36 @@
         ],
         "parameters": [
             "collegejaar"
+        ]
+    },
+    "financieel": {
+        "queries": [
+            "betaalmail/s_stop",
+            "betaalmail/s_sih",
+            "financieel/s_isc"
+        ],
+        "parameters": [
+            "collegejaar"
+        ]
+    },
+    "betaalmail": {
+        "queries": [
+            "betaalmail/s_sih",
+            "betaalmail/s_opl",
+            "betaalmail/s_stop",
+            "betaalmail/s_adr_nl",
+            "betaalmail/s_ooa_aan",
+            "betaalmail/s_fin_storno",
+            "betaalmail/s_fin_grp"
+        ],
+        "parameters": [
+            "collegejaar"
+        ]
+    },
+    "referentie algemeen": {
+        "queries": [
+            "referentie/r_nat",
+            "referentie/r_opl"
         ]
     },
     "referentie ooa": {
