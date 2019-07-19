@@ -168,7 +168,10 @@ def load_set(query_set, parameters=None):
             return x[2:]
         return x
 
-    queries = QUERIES[query_set]['queries']
+    if isinstance(query_set, list):
+        queries = query_set
+    else:
+        queries = QUERIES[query_set]['queries']
 
     if parameters:
         if not isinstance(parameters, list):
