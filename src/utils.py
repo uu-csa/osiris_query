@@ -21,7 +21,12 @@ def reporter(func):
     return wrapper_reporter
 
 
-def studnum_to_string(df, colname='studentnummer', print_strings=True):
+def studnum_to_string(
+    df,
+    colname='studentnummer',
+    print_strings=True,
+    as_set=True
+    ):
     """
     Print or return the column 'studentnummer' from a `DataFrame` as a string.
     Blocks of 500 numbers are separated by an empty line.
@@ -35,17 +40,23 @@ def studnum_to_string(df, colname='studentnummer', print_strings=True):
     ===========================
     :param colname: `str`, default='studentnummer'
         Name of the column containing the numbers to return.
-    :print_strings: `boolean`, default=True
+    :param print_strings: `boolean`, default=True
         If True the function will print the string and return None.
         If False the function will not print and return the string.
+    :param as_set: `boolean`, default=True
+        If True the function will return a set instead of a list.
+        This means no duplicates.
 
     Returns
     =======
     :studnum_to_string: `str` or None
     """
 
-    string=''
-    for idx, studentnummer in enumerate(df[colname].to_list()):
+    string = ''
+    studentnummers = df[colname].to_list()
+    if as_set:
+        studentnummers = set(studentnummers)
+    for idx, studentnummer in enumerate(studentnummers):
         if ((idx + 1) % 500):
             string += f"{studentnummer};"
         else:
