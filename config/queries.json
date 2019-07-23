@@ -55,6 +55,18 @@
             "collegejaar"
         ]
     },
+    "ucr kortingen": {
+        "queries": [
+            "financieel/s_isc",
+            "betaalmail/s_sih",
+            "betaalmail/s_stop",
+            "monitor/s_opl_ej_v",
+            "monitor/s_opl_feb_min_1"
+        ],
+        "parameters": [
+            "collegejaar"
+        ]
+    },
     "referentie algemeen": {
         "queries": [
             "referentie/r_nat",
