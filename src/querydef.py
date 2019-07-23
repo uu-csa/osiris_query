@@ -170,6 +170,19 @@ class QueryDef:
             for key in parameters:
                 x = x.replace(f'[{key}]', str(parameters[key]))
 
+                # simple arithmetic
+                srch_str = fr'(\[({key})(-|\+)(\d+)\])'
+                regex = re.compile(srch_str)
+                matches = re.findall(regex, x)
+                if matches is not None:
+                    for match in matches:
+                        left = parameters[key]
+                        operator = match[2]
+                        right = match[3]
+                        
+                        output = eval(left + operator + right)
+                        x = x.replace(match[0], str(output))
+
                 # slice logic on variables
                 srch_str = fr'\[{key}\((.?:.?)\)\]'
                 regex = re.compile(srch_str)
@@ -183,6 +196,7 @@ class QueryDef:
                 key_slice = f'[{key}({match.group(1)})]'
                 val_slice = parameters[key][left:right]
                 x = x.replace(key_slice, val_slice)
+
         return x
 
 
