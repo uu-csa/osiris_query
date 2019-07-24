@@ -13,5 +13,10 @@
         "target": "querydef",
         "description": "Naam van het OOA-proces.",
         "type": "str"
+    },
+    "tabel": {
+        "target": "querydef",
+        "description": "Naam van de OSIRIS-tabel waarvoor je de kolommen wilt opzoeken.",
+        "type": "str"
     }
 }
