@@ -176,6 +176,7 @@ def load_set(query_set, parameters=None):
     if parameters:
         if not isinstance(parameters, list):
             parameters = [parameters]
+    parameters = [str(p) for p in parameters]
 
     DataSet = namedtuple('DataSet', [get_name(q) for q in queries])
     return DataSet(
