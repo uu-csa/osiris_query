@@ -75,10 +75,16 @@ Deze gegevens zijn met de `read_pickle` functie in de `query` module in te laden
 ## Code
 De code is opgebouwd rond twee objecten (`classes`):
 
-1. `QueryDef`
-2. `Query`
+1. `QueryDef`: deze class regelt alles rondom de query definitie:
+    * inlezen van de query definities die in de [map queries](https://github.com/uu-csa/osiris_query/tree/master/queries) zijn opgeslagen
+    * updaten van de query definities op basis van de opgegeven variabelen
+    * updaten van de naam van de query output op basis van de opgegeven variabelen
+2. `Query`: deze class gebruikt de `QueryDef` om de query uit te voeren:
+    * verbinding leggen met de database
+    * uitvoeren van de SQL query
+    * opslaan van de resultaten
 
-Deze objecten worden via scripts opgeroepen.
+Deze objecten worden via scripts opgeroepen. De eindgebruiker zal in de meeste situaties niet direct met deze objecten hoeven te werken.
 
 ---
 
