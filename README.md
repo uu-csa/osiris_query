@@ -86,6 +86,12 @@ Deze objecten worden via scripts opgeroepen.
 
 Om een of meerdere queries uit te voeren kun je [`run_query.bat`](https://github.com/uu-csa/osiris_query/blob/master/run_query.bat) gebruiken. Deze start het [`run_query.py`](https://github.com/uu-csa/osiris_query/blob/master/run_query.py) script. Het script geeft je een keuze menu waarin je een van de query sets kunt selecteren die gedefinieerd zijn in [`queries.json`](https://github.com/uu-csa/osiris_query/blob/master/config/queries.json) in de `config` folder. Nadat je een keuze hebt gemaakt, zal het script je vragen om de benodigde parameters in te vullen. Daarna worden de queries uitgevoerd en de resultaten opgeslagen in de betreffende folders.
 
+![run_query.bat](run_query.png?raw=true "OSIRIS query")
+
+> In de map ['systeem'](https://github.com/uu-csa/osiris_query/tree/master/queries/systeem) vind je naast inhoudelijke queries ook queries om meta-informatie uit OSIRIS te halen, waaronder:
+> * Referentie tabellen: een overzicht van alle OST tabellen
+> * Referentie kolomnamen: een overzicht van kolomnamen voor een op te geven tabel.
+
 ### Zelf querysets toevoegen
 Om zelf een of een serie queries toe te voegen aan het keuzemenu van `run_query` moet je de eerdergenoemde `queries.json` bewerken. Dit [`json`](https://nl.wikipedia.org/wiki/JSON) bestand is als volgt opgebouwd:
 
@@ -145,3 +151,5 @@ Start de omgeving vervolgens als volgt op (evt. via het [`run_env.bat`](https://
 In de command prompt kun je het script met het volgende commando uitvoeren:
 
 > `python.exe <naam script> <evt. argumenten>`
+
+---
