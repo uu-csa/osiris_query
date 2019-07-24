@@ -46,7 +46,11 @@ Het is mogelijk om variabelen op te nemen in een query definitie. Dit stelt je i
 
 #### Enkele voorbeelden van optellen/aftrekken
 Notatie          | Variabele | Operator | n   | Resultaat
+<<<<<<< HEAD
 :--------------- | --------: | :------: | --: | --------:
+=======
+---------------- | --------- | :------: | --: | --------:
+>>>>>>> 9f157f5edc19b0d922584a8a4e5319133489fbed
 [collegejaar+1]  | 2019      | +        | 1   | 2020
 [collegejaar-12] | 2019      | -        | 12  | 2007
 
