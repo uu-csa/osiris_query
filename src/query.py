@@ -173,18 +173,21 @@ def load_set(query_set, parameters=None):
     else:
         queries = QUERIES[query_set]['queries']
 
+    DataSet = namedtuple('DataSet', [get_name(q) for q in queries])
+
     if parameters:
         if not isinstance(parameters, list):
             parameters = [parameters]
-    parameters = [str(p) for p in parameters]
+        parameters = [str(p) for p in parameters]
 
-    DataSet = namedtuple('DataSet', [get_name(q) for q in queries])
-    return DataSet(
-        **{
-            get_name(q):load_frame(f"{q}_var_{'_'.join(parameters)}")
-            for q in queries
-            }
-        )
+        return DataSet(
+            **{
+                get_name(q):load_frame(f"{q}_var_{'_'.join(parameters)}")
+                for q in queries
+                }
+            )
+    else:
+        return DataSet(**{get_name(q):load_frame(q) for q in queries})
 
 
 def load_frame(query_name):
