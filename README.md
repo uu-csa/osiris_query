@@ -45,16 +45,16 @@ Het is mogelijk om variabelen op te nemen in een query definitie. Dit stelt je i
 > Als de waarde waarnaar de variabele verwijst een getal is (zoals bv. een collegejaar) dan kun je binnen de blokhaken simpele optel- en aftreksommen maken. Dit doe je door achter de variabelenaam maar binnen de blokhaken +/- `n` toe te voegen, waarbij `n` verwijst naar het getal dat je bij de waarde wilt optellen of aftrekken.
 
 #### Enkele voorbeelden van optellen/aftrekken
-Notatie          | Variabele | Operator | n  | Resultaat
----------------- | --------- | :------: | -- | --------:
-[collegejaar+1]  | 2019      | +        | 1  | 2020
-[collegejaar-12] | 2019      | -        | 12 | 2007
+Notatie          | Variabele | Operator | n   | Resultaat
+:--------------- | --------: | :------: | --: | --------:
+[collegejaar+1]  | 2019      | +        | 1   | 2020
+[collegejaar-12] | 2019      | -        | 12  | 2007
 
 > Het is mogelijk om slechts een deel van de waarde van een variabele te selecteren met behulp van de zogenaamde [slice](https://docs.python.org/3/library/functions.html?highlight=slice#slice)-notatie. Geef achter de variabelenaam maar binnen de blokhaken tussen ronde haken het startkarakter en eindkarakter op, gescheiden door een dubbele punt.
 
 #### Enkele voorbeelden van slice-notatie
 Notatie            | Variabele | Slice | Resultaat
------------------- | --------- | :---: | --------:
+:----------------- | --------: | :---: | --------:
 [collegejaar(:)]   | 2019      | (:)   | 2019
 [collegejaar(1:2)] | 2019      | (1:2) | 01
 [collegejaar(:3)]  | 2019      | (:3)  | 20
