@@ -3,7 +3,7 @@
 
 ---
 
-L.C. Vriend
+[L.C. Vriend](https://github.com/lcvriend/)
 
 Met deze tool kun je de OSIRIS tabellen via SQL benaderen en de resultaten voor verdere bewerking als `DataFrame` opslaan. Bovendien zorgt de tool voor een gestructureerde manier om de queries en de resultaten te organiseren. In de basis bestaat de tool uit de volgende onderdelen:
 
