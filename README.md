@@ -39,18 +39,26 @@ In het kort stelt deze query definitie je in staat om de volgende elementen aan 
 
 De **metadata** wordt later bij het uitvoeren van de query bij de resultaten opgeslagen. Tijdens het bewerken van de data is deze informatie daarom op elk moment op te raadplegen. De **output configuratie** maakt het mogelijk om de query resultaten op een efficiënte manier op te slaan. Bovendien kun je bepaalde bewerkingen in deze fase al uitvoeren.
 
-### Templates
+### Query variabelen
 Het is mogelijk om variabelen op te nemen in een query definitie. Dit stelt je in staat om één query voor bijv. meerdere collegejaren of meerdere aanmeldprocessen te hergebruiken. Een variabele bestaat uit een naam tussen blokhaken: [variabele].
+
+> Als de waarde waarnaar de variabele verwijst een getal is (zoals bv. een collegejaar) dan kun je binnen de blokhaken simpele optel- en aftreksommen maken. Dit doe je door achter de variabelenaam maar binnen de blokhaken +/- `n` toe te voegen, waarbij `n` verwijst naar het getal dat je bij de waarde wilt optellen of aftrekken.
+
+#### Enkele voorbeelden van optellen/aftrekken
+Notatie          | Variabele | Operator | n  | Resultaat
+---------------- | --------- | :------: | -- | --------:
+[collegejaar+1]  | 2019      | +        | 1  | 2020
+[collegejaar-12] | 2019      | -        | 12 | 2007
 
 > Het is mogelijk om slechts een deel van de waarde van een variabele te selecteren met behulp van de zogenaamde [slice](https://docs.python.org/3/library/functions.html?highlight=slice#slice)-notatie. Geef achter de variabelenaam maar binnen de blokhaken tussen ronde haken het startkarakter en eindkarakter op, gescheiden door een dubbele punt.
 
 #### Enkele voorbeelden van slice-notatie
-Variabele | Slice | Resultaat
---------- | :---: | --------:
-2019      | (:)   | 2019
-2019      | (1:2) | 01
-2019      | (:3)  | 20
-2019      | (2:)  | 19
+Notatie            | Variabele | Slice | Resultaat
+------------------ | --------- | :---: | --------:
+[collegejaar(:)]   | 2019      | (:)   | 2019
+[collegejaar(1:2)] | 2019      | (1:2) | 01
+[collegejaar(:3)]  | 2019      | (:3)  | 20
+[collegejaar(2:)]  | 2019      | (2:)  | 19
 
 ---
 
@@ -85,6 +93,24 @@ Om zelf een of een serie queries toe te voegen aan het keuzemenu van `run_query`
 >   * queries: lijst met verwijzing naar de querydefs (let op dat je ook naar de correcte folder verwijst)
 >   * parameters: lijst met de parameters die gebruikt worden binnen de querydefs
 
+##### Voorbeeld van een query set
+```JSON
+"betaalmail": {
+    "queries": [
+        "betaalmail/s_sih",
+        "betaalmail/s_opl",
+        "betaalmail/s_stop",
+        "betaalmail/s_adr_nl",
+        "betaalmail/s_ooa_aan",
+        "betaalmail/s_fin_storno",
+        "betaalmail/s_fin_grp"
+    ],
+    "parameters": [
+        "collegejaar"
+    ]
+}
+```
+
 Zorg ervoor dat de parameters die je hebt opgenomen gedefinieerd zijn in [`metaparam.json`](https://github.com/uu-csa/osiris_query/blob/master/config/metaparam.json). In dit bestand wordt vastgelegd hoe de parameter gebruikt moet worden. Het is als volgt opgebouwd:
 
 > Naam van de parameter
@@ -95,6 +121,15 @@ Zorg ervoor dat de parameters die je hebt opgenomen gedefinieerd zijn in [`metap
 >   * type: welke soort waarde kan de parameter kan krijgen:
 >       * 'str': de waarde is een string
 >       * 'int': de waarde is een geheel getal (integer)
+
+##### Voorbeeld van een parameterdefinitie
+```JSON
+"collegejaar": {
+    "target": "querydef",
+    "description": "Collegejaar waarvoor gegevens opgehaald worden.",
+    "type": "int"
+}
+```
 
 ---
 
