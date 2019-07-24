@@ -38,6 +38,9 @@
             "betaalmail/s_opl",
             "betaalmail/s_stop",
             "vvr/s_vvr"
+        ],
+    "parameters": [
+            "collegejaar"
         ]
     },
     "financieel": {
