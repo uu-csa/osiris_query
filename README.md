@@ -75,11 +75,11 @@ Deze gegevens zijn met de `read_pickle` functie in de `query` module in te laden
 ## Code
 De code is opgebouwd rond twee objecten (`classes`):
 
-1. `QueryDef`: deze class regelt alles rondom de query definitie:
+1. [`QueryDef`](https://github.com/uu-csa/osiris_query/blob/master/src/querydef.py): deze class regelt alles rondom de query definitie:
     * inlezen van de query definities die in de [map queries](https://github.com/uu-csa/osiris_query/tree/master/queries) zijn opgeslagen
     * updaten van de query definities op basis van de opgegeven variabelen
     * updaten van de naam van de query output op basis van de opgegeven variabelen
-2. `Query`: deze class gebruikt de `QueryDef` om de query uit te voeren:
+2. [`Query`](https://github.com/uu-csa/osiris_query/blob/master/src/query.py): deze class gebruikt de `QueryDef` om de query uit te voeren:
     * verbinding leggen met de database
     * uitvoeren van de SQL query
     * opslaan van de resultaten
