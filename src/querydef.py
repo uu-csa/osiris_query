@@ -179,7 +179,7 @@ class QueryDef:
                         left = parameters[key]
                         operator = match[2]
                         right = match[3]
-                        
+
                         output = eval(left + operator + right)
                         x = x.replace(match[0], str(output))
 
