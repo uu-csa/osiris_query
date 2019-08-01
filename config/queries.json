@@ -82,7 +82,8 @@
         "queries": [
             "historie/s_sih_ac4_hist",
             "historie/s_mac_hist",
-            "historie/s_opl_hist"
+            "historie/s_opl_hist",
+            "historie/s_sih_vti_hist"
         ],
         "parameters": [
             "collegejaar"
