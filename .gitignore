@@ -6,3 +6,4 @@ output/*
 testing/*
 !testing/.gitkeep
 *.code-workspace
+q_*.py
