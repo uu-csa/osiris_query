@@ -33,7 +33,7 @@
     },
     "monitor vvr": {
         "queries": [
-            "betaalmail/s_sih",
+            "monitor/s_sih",
             "betaalmail/s_ooa_aan",
             "betaalmail/s_opl",
             "betaalmail/s_stop",
@@ -72,8 +72,7 @@
             "financieel/s_isc",
             "betaalmail/s_sih",
             "betaalmail/s_stop",
-            "monitor/s_opl_ej_v",
-            "monitor/s_opl_feb_min_1"
+            "monitor/s_opl_ej_v"
         ],
         "parameters": [
             "collegejaar"
@@ -81,8 +80,9 @@
     },
     "historische ontwikkeling": {
         "queries": [
-            "monitor/s_sih_ac4_hist",
-            "financieel/s_mac_hist"
+            "historie/s_sih_ac4_hist",
+            "historie/s_mac_hist",
+            "historie/s_opl_hist"
         ],
         "parameters": [
             "collegejaar"
