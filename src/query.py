@@ -4,6 +4,7 @@ import json
 import pickle
 import timeit
 from collections import namedtuple
+from pathlib import Path
 
 # third party
 import pandas as pd
@@ -137,7 +138,7 @@ def connect():
 
 
 def read_pickle(query_name):
-    with open(PATH_OUTPUT / f'{query_name}.pkl', 'rb') as f:
+    with open((PATH_OUTPUT / f'{query_name}').with_suffix('.pkl'), 'rb') as f:
         return pickle.load(f)
 
 
