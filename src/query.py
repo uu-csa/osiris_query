@@ -21,11 +21,11 @@ QUERIES = load_registry(PATH_CONFIG / 'queries.json')
 
 class Query:
     def __init__(self, qd, frame, sec=None):
-        self.qd = qd
-        self.frame = frame
+        self.qd       = qd
+        self.frame    = frame
         self.nrecords = len(frame)
-        self.timer = sec
-        self.dtime = datetime.datetime.now()
+        self.timer    = sec
+        self.dtime    = datetime.datetime.now()
 
     @classmethod
     @reporter

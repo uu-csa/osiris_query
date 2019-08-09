@@ -2,7 +2,7 @@ import re
 import textwrap
 import configparser
 from collections import namedtuple
-from .config import PATH_INPUT
+from src.config import PATH_INPUT
 
 
 class QueryDef:
@@ -106,9 +106,10 @@ class QueryDef:
                 )
             ini.read(ini_file, encoding='utf-8')
 
-            meta    = ini['meta']
-            query   = ini['query']
-            columns = ini['columns']
+            meta        = ini['meta']
+            query       = ini['query']
+            columns     = ini['columns']
+            # parameters  = ini['parameters']   TODO
 
             description = meta.get('description', '').strip('\n')
             description = cls.set_param(description, parameters)
@@ -198,6 +199,17 @@ class QueryDef:
                 x = x.replace(key_slice, val_slice)
 
         return x
+
+
+    @staticmethod
+    def get_param_repr(parameters):
+        # set string representation for parameters
+        if param_repr is not None:
+            param_repr = f'var_{param_repr}'
+        elif parameters is not None:
+            param_values = [str(v) for v in parameters.values()]
+            param_values.insert(0, 'var')
+            param_repr = '_'.join(param_values)
 
 
     @staticmethod

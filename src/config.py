@@ -1,7 +1,7 @@
 # standard library
 import json
-from pathlib import Path
 from collections import namedtuple
+from pathlib import Path
 
 
 PATH_LIB = Path(__file__).resolve().parent.parent
