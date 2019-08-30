@@ -5,4 +5,3 @@ call activate py32
 call python.exe run_query.py
 
 @echo.
-pause
