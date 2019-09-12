@@ -1,6 +1,7 @@
 # standard library
-from os import system, name
+import sys
 import timeit
+from os import system, name
 
 #local
 from src.config import PATH_CONFIG, load_registry
@@ -118,4 +119,19 @@ if __name__ == '__main__':
                     elif metaparams[param]['target'] == 'file':
                         querydefs = [val]
             print()
-        run(querydefs, parameters)
+        try:
+            run(querydefs, parameters)
+        except:
+            print(
+                "\n"
+                " ____ ____ _  _ ___  _  _ ___ ____ ____  "
+                "  ____ ____ _   _ ____    _  _ ____\n"
+                " |    |  | |\/| |__] |  |  |  |___ |__/  "
+                "  [__  |__|  \_/  [__     |\ | |  |\n"
+                " |___ |__| |  | |    |__|  |  |___ |  \  "
+                "  ___] |  |   |   ___]    | \| |__|\n"
+                "\n"
+            )
+            for item in sys.exc_info():
+                print(item)
+            pass
