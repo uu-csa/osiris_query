@@ -13,7 +13,7 @@ import pyodbc
 # local
 from src.config import PATH_CONFIG, PATH_LOGIN, PATH_OUTPUT, load_registry
 from src.querydef import QueryDef
-from src.utils import reporter
+from src.utils import reporter, getpw
 
 
 QUERIES = load_registry(PATH_CONFIG / 'queries.json')
@@ -127,9 +127,7 @@ class Query:
 @reporter
 def connect():
     # get login details
-    login = PATH_LOGIN.read_text().split('\n')[1].split(',')
-    uid = login[0]
-    pwd = login[1]
+    uid, pwd = getpw(PATH_LOGIN)
 
     # log on to database
     param = f'DSN=UUSTPRD;DBQ=UUSTPRD;STPRD;UID={uid};PWD={pwd};CHARSET=UTF8'

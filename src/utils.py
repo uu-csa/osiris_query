@@ -1,5 +1,7 @@
 import timeit
 import functools
+from pathlib import Path
+
 
 def reporter(func):
     @functools.wraps(func)
@@ -19,6 +21,13 @@ def reporter(func):
         print(f"{func.__name__!r} returned {value!r} in {sec} seconds\n")
         return value
     return wrapper_reporter
+
+
+def getpw(path):
+    # get login details
+    path = Path(path)
+    login = path.read_text().split('\n')[1].split(',')
+    return login[0].strip(), login[1].strip()
 
 
 def studnum_to_string(
