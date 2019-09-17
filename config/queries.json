@@ -6,12 +6,10 @@
             "monitor/s_stud",
             "monitor/s_stop",
             "monitor/s_stat",
-            "monitor/s_adr",
             "monitor/s_fin",
-            "monitor/s_fin_grp",
-            "monitor/s_fin_storno",
             "monitor/s_ooa_aan",
             "monitor/s_exam",
+            "monitor/s_toel",
             "vvr/s_vvr"
         ],
         "parameters": [

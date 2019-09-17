@@ -4,8 +4,7 @@ start = timeit.default_timer()
 import argparse
 
 #local
-from src.querydef import QueryDef
-from src.query import Query, connect, run_query
+from query.query import connect, run_query
 
 
 QUERIES = [

@@ -4,11 +4,11 @@ from collections import namedtuple
 from pathlib import Path
 
 
-PATH_LIB = Path(__file__).resolve().parent.parent
+PATH_LIB    = Path(__file__).resolve().parent.parent
 PATH_CONFIG = PATH_LIB / 'config'
 PATH_OUTPUT = PATH_LIB / 'output'
-PATH_INPUT = PATH_LIB / 'queries'
-PATH_LOGIN = Path('u:/uustprd.txt')
+PATH_INPUT  = PATH_LIB / 'queries'
+PATH_LOGIN  = Path('u:/uustprd.txt')
 
 
 def load_registry(filename):

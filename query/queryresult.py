@@ -1,87 +1,25 @@
 # standard library
 import datetime
-import json
 import pickle
-import timeit
 from collections import namedtuple
-from pathlib import Path
 
 # third party
 import pandas as pd
-import pyodbc
 
 # local
-from src.config import PATH_CONFIG, PATH_LOGIN, PATH_OUTPUT, load_registry
-from src.querydef import QueryDef
-from src.utils import reporter, getpw
+from query.config import PATH_CONFIG, PATH_OUTPUT, load_registry
 
 
 QUERIES = load_registry(PATH_CONFIG / 'queries.json')
 
 
-class Query:
-    def __init__(self, qd, frame, sec=None):
+class QueryResult:
+    def __init__(self, qd, frame, seconds=None):
         self.qd       = qd
         self.frame    = frame
         self.nrecords = len(frame)
-        self.timer    = sec
+        self.timer    = seconds
         self.dtime    = datetime.datetime.now()
-
-    @classmethod
-    @reporter
-    def from_qd(cls, qd, cursor=None):
-        """
-        Construct Query from QueryDef.
-        Run sql-query on the OSIRIS database and return Query instance.
-
-        - Lookup login details from u:/uustprd.txt
-        - Connect to database
-        - Fetch records
-        - (Optionally) Rename columns
-        - (Optionally) Recast dtypes
-        - Pack (meta)data in namedtuple
-
-        Parameters
-        ==========
-        :param qd: `QueryDef`
-            Instance of `QueryDef` containing the query definition.
-
-        Optional parameters
-        ===================
-        :param cursor: `cursor`, default `None`
-            ODBC-connection to the database.
-            If None the constructor will establish connection.
-
-        Return
-        ======
-        :query: table name as `string`, sec as `float`
-        """
-
-        # connection
-        if not cursor:
-            cursor = connect()
-
-        # fetch records
-        start = timeit.default_timer()
-        cursor.execute(qd.sql)
-        if isinstance(qd.columns, dict):
-            cols = qd.columns.keys()
-            dtypes = {k: v for k, v in qd.columns.items() if v is not None}
-        else:
-            cols = qd.columns
-            dtypes = None
-
-        df = pd.DataFrame.from_records(
-            cursor.fetchall(),
-            columns=cols,
-            )
-
-        if dtypes:
-            df = df.astype(dtypes)
-        stop = timeit.default_timer()
-        sec = stop - start
-
-        return cls(qd, df, sec=sec)
 
     def to_pickle(self, path=None):
         """
@@ -124,20 +62,15 @@ class Query:
         return None
 
 
-@reporter
-def connect():
-    # get login details
-    uid, pwd = getpw(PATH_LOGIN)
-
-    # log on to database
-    param = f'DSN=UUSTPRD;DBQ=UUSTPRD;STPRD;UID={uid};PWD={pwd};CHARSET=UTF8'
-    conn = pyodbc.connect(param)
-    return conn.cursor()
-
-
 def read_pickle(query_name):
-    with open((PATH_OUTPUT / f'{query_name}').with_suffix('.pkl'), 'rb') as f:
+    path = (PATH_OUTPUT / f'{query_name}').with_suffix('.pkl')
+    with open(path, 'rb') as f:
         return pickle.load(f)
+
+
+def load_frame(query_name):
+    q = read_pickle(query_name)
+    return q.frame
 
 
 def load_set(query_set, parameters=None):
@@ -183,19 +116,7 @@ def load_set(query_set, parameters=None):
             **{
                 get_name(q):load_frame(f"{q}_var_{'_'.join(parameters)}")
                 for q in queries
-                }
-            )
+            }
+        )
     else:
         return DataSet(**{get_name(q):load_frame(q) for q in queries})
-
-
-def load_frame(query_name):
-    q = read_pickle(query_name)
-    return q.frame
-
-
-def run_query(query_name, cursor=None, parameters=None):
-    qd = QueryDef.from_file(query_name, parameters=parameters)
-    q = Query.from_qd(qd, cursor=cursor)
-    q.to_pickle()
-    return None

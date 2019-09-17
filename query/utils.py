@@ -9,13 +9,10 @@ def reporter(func):
         start = timeit.default_timer()
         args_repr = [f'{a!s}' for a in args]
         kwargs_repr = [f'{k}={v!s}' for k, v in kwargs.items()]
-        signature = '\n\n'.join(args_repr + kwargs_repr)
-        print("=" * 80)
+        signature = '\n'.join(args_repr + kwargs_repr)
         print(f"CALLING {func.__name__!r}")
-        print("=" * 80)
         print(f"{signature}")
         value = func(*args, **kwargs)
-        print("-" * 80)
         stop = timeit.default_timer()
         sec = stop - start
         print(f"{func.__name__!r} returned {value!r} in {sec} seconds\n")
@@ -35,7 +32,7 @@ def studnum_to_string(
     colname='studentnummer',
     print_strings=True,
     as_set=True
-    ):
+):
     """
     Print or return the column 'studentnummer' from a `DataFrame` as a string.
     Blocks of 500 numbers are separated by an empty line.
@@ -50,15 +47,15 @@ def studnum_to_string(
     :param colname: `str`, default='studentnummer'
         Name of the column containing the numbers to return.
     :param print_strings: `boolean`, default=True
-        If True the function will print the string and return None.
-        If False the function will not print and return the string.
+        If True the function will print the string.
+        If False the function will not print.
     :param as_set: `boolean`, default=True
         If True the function will return a set instead of a list.
         This means no duplicates.
 
     Returns
     =======
-    :studnum_to_string: `str` or None
+    :studnum_to_string: `str`
     """
 
     string = ''

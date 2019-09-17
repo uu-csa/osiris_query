@@ -2,7 +2,7 @@ import re
 import textwrap
 import configparser
 from collections import namedtuple
-from src.config import PATH_INPUT
+from query.config import PATH_INPUT
 
 
 class QueryDef:
