@@ -2,11 +2,11 @@
 import sys
 import timeit
 from os import system, name
+from concurrent.futures import ThreadPoolExecutor
 
 #local
-from src.config import PATH_CONFIG, load_registry
-from src.querydef import QueryDef
-from src.query import Query, connect, run_query
+from query.config import PATH_CONFIG, load_registry
+from query.query import connect, run_query
 
 
 metaparams = load_registry(PATH_CONFIG / 'metaparam.json')
@@ -28,15 +28,21 @@ def print_line(sep='='):
     print(sep * 80)
 
 
-
-def run(queries, parameters):
+def run(querydefs, parameters):
     start = timeit.default_timer()
     # CONNECT TO DATABASE
-    cursor = connect()
+    # cursor = connect()
 
     # RUN QUERIES
-    for query in queries:
-        run_query(f"{query}", cursor=cursor, parameters=parameters)
+    with ThreadPoolExecutor(max_workers=7) as executor:
+        [
+            executor.submit(
+                run_query,
+                query,
+                parameters=parameters,
+                )
+            for query in querydefs
+        ]
 
     # STOP TIMER AND PRINT RUNTIME
     stop = timeit.default_timer()
@@ -55,7 +61,7 @@ if __name__ == '__main__':
          / / / /\__ \ / // /_/ // / \__ \   / __ `/ / / / _ \/ ___/ / / /
         / /_/ /___/ // // _, _// / ___/ /  / /_/ / /_/ /  __/ /  / /_/ /
         \____//____/___/_/ |_/___//____/   \__, /\__,_/\___/_/   \__, /
-                                            /_/                /____/    \u2122
+                                             /_/                /____/    \u2122
         """
         )
 
