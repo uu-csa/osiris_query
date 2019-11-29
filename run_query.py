@@ -9,11 +9,6 @@ from query.config import PATH_CONFIG, load_registry
 from query.query import connect, run_query
 
 
-metaparams = load_registry(PATH_CONFIG / 'metaparam.json')
-queries    = load_registry(PATH_CONFIG / 'queries.json')
-options    = {str(idx):query for idx, query in enumerate(queries)}
-stop       = '.'
-
 def clear():
     # for windows
     if name == 'nt':
@@ -54,6 +49,11 @@ if __name__ == '__main__':
 
     clear()
     while True:
+        metaparams = load_registry(PATH_CONFIG / 'metaparam.json')
+        queries    = load_registry(PATH_CONFIG / 'queries.json')
+        options    = {str(idx):query for idx, query in enumerate(queries)}
+        stop       = '.'
+
         print(
         u"""
            ____  _____ ________  _________
@@ -62,6 +62,7 @@ if __name__ == '__main__':
         / /_/ /___/ // // _, _// / ___/ /  / /_/ / /_/ /  __/ /  / /_/ /
         \____//____/___/_/ |_/___//____/   \__, /\__,_/\___/_/   \__, /
                                              /_/                /____/    \u2122
+            dev.
         """
         )
 
@@ -125,19 +126,4 @@ if __name__ == '__main__':
                     elif metaparams[param]['target'] == 'file':
                         querydefs = [val]
             print()
-        try:
-            run(querydefs, parameters)
-        except:
-            print(
-                "\n"
-                " ____ ____ _  _ ___  _  _ ___ ____ ____  "
-                "  ____ ____ _   _ ____    _  _ ____\n"
-                " |    |  | |\/| |__] |  |  |  |___ |__/  "
-                "  [__  |__|  \_/  [__     |\ | |  |\n"
-                " |___ |__| |  | |    |__|  |  |___ |  \  "
-                "  ___] |  |   |   ___]    | \| |__|\n"
-                "\n"
-            )
-            for item in sys.exc_info():
-                print(item)
-            pass
+        run(querydefs, parameters)

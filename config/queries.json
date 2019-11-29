@@ -7,7 +7,7 @@
             "monitor/s_stop",
             "monitor/s_stat",
             "monitor/s_fin",
-            "monitor/s_ooa_aan",
+            "monitor/s_ooa_aanvraag",
             "monitor/s_exam",
             "monitor/s_toel",
             "vvr/s_vvr"
@@ -21,9 +21,9 @@
             "vooropleiding/s_vopl",
             "vooropleiding/s_vak",
             "vooropleiding/s_stud",
-            "betaalmail/s_ooa_aan",
-            "betaalmail/s_opl",
-            "betaalmail/s_stop",
+            "monitor/s_ooa_aanvraag",
+            "monitor/s_opl",
+            "monitor/s_stop",
             "monitor/s_sih",
             "monitor/s_stat"
         ],
@@ -34,7 +34,7 @@
     "monitor vvr": {
         "queries": [
             "monitor/s_sih",
-            "betaalmail/s_ooa_aan",
+            "betaalmail/s_ooa_aanvraag",
             "betaalmail/s_opl",
             "betaalmail/s_stop",
             "vvr/s_vvr"
@@ -60,12 +60,21 @@
             "betaalmail/s_opl",
             "betaalmail/s_stop",
             "betaalmail/s_adr_nl",
-            "betaalmail/s_ooa_aan",
+            "betaalmail/s_ooa_aanvraag",
             "betaalmail/s_fin_storno",
             "betaalmail/s_fin_grp"
         ],
         "parameters": [
             "collegejaar"
+        ]
+    },
+    "osiris online application": {
+        "queries": [
+            "ooa/s_ooa_cl_ps",
+            "ooa/s_ooa_aantekening"
+        ],
+        "parameters": [
+            "procesnaam"
         ]
     },
     "ucr kortingen": {
@@ -90,6 +99,16 @@
             "collegejaar"
         ]
     },
+    "acceptatieformulier": {
+        "queries": [
+            "ooa/s_ooa_accform",
+            "ooa/s_ooa_accform_ps"
+        ],
+        "parameters": [
+            "procesnaam",
+            "collegejaar"
+        ]
+    },
     "referentie tabellen": {
         "queries": [
             "systeem/alle_tabellen"
@@ -106,13 +125,19 @@
     "referentie algemeen": {
         "queries": [
             "referentie/r_nat",
-            "referentie/r_opl"
+            "referentie/r_opl",
+            "referentie/r_tvop",
+            "referentie/r_inst",
+            "referentie/r_school"
         ]
     },
     "referentie ooa": {
         "queries": [
             "referentie/ooa/r_ooa_sl",
-            "referentie/ooa/r_ooa_ps"
+            "referentie/ooa/r_ooa_ps",
+            "referentie/ooa/r_ooa_ps_opl",
+            "referentie/ooa/r_ooa_ps_afh",
+            "referentie/ooa/r_ooa_ps_antw"
         ],
         "parameters": [
             "procesnaam"

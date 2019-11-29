@@ -95,7 +95,7 @@ def load_set(query_set, parameters=None):
     """
 
     def get_name(x):
-        x = x.split('/')[1]
+        x = x.split('/')[-1]
         if '_' in x[:2]:
             return x[2:]
         return x

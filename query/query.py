@@ -1,4 +1,5 @@
 # standard library
+import sys
 import json
 import timeit
 
@@ -49,7 +50,23 @@ def query(qd, cursor=None):
 
     # fetch records
     start = timeit.default_timer()
-    cursor.execute(qd.sql)
+    try:
+        cursor.execute(qd.sql)
+    except:
+        print(
+            "\n"
+            " ____ ____ _  _ ___  _  _ ___ ____ ____  "
+            "  ____ ____ _   _ ____    _  _ ____\n"
+            " |    |  | |\/| |__] |  |  |  |___ |__/  "
+            "  [__  |__|  \_/  [__     |\ | |  |\n"
+            " |___ |__| |  | |    |__|  |  |___ |  \  "
+            "  ___] |  |   |   ___]    | \| |__|\n"
+            "\n"
+        )
+        for item in sys.exc_info():
+            print(item)
+        return
+
     if isinstance(qd.columns, dict):
         cols = qd.columns.keys()
         dtypes = {k: v for k, v in qd.columns.items() if v is not None}

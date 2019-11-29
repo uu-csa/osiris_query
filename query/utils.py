@@ -10,8 +10,6 @@ def reporter(func):
         args_repr = [f'{a!s}' for a in args]
         kwargs_repr = [f'{k}={v!s}' for k, v in kwargs.items()]
         signature = '\n'.join(args_repr + kwargs_repr)
-        print(f"CALLING {func.__name__!r}")
-        print(f"{signature}")
         value = func(*args, **kwargs)
         stop = timeit.default_timer()
         sec = stop - start
