@@ -6,7 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 #local
 from query.config import PATH_CONFIG, load_registry
-from query.query import connect, run_query
+from query.execution import connect, run_query
 
 
 def clear():

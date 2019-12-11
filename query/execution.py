@@ -10,8 +10,8 @@ import pyodbc
 
 # local
 from query.config import PATH_LOGIN
-from query.querydef import QueryDef
-from query.queryresult import QueryResult
+from query.definition import QueryDef
+from query.results import QueryResult
 from query.utils import reporter, getpw
 
 
