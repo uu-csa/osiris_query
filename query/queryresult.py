@@ -63,7 +63,10 @@ class QueryResult:
 
 
 def read_pickle(query_name):
-    path = (PATH_OUTPUT / f'{query_name}').with_suffix('.pkl')
+    if query_name.startswith('./'):
+        path = Path(query_name[2:]).with_suffix('.pkl')
+    else:
+        path = (PATH_OUTPUT / f'{query_name}').with_suffix('.pkl')
     with open(path, 'rb') as f:
         return pickle.load(f)
 
