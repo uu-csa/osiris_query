@@ -7,7 +7,7 @@
             "monitor/s_stop",
             "monitor/s_stat",
             "monitor/s_fin",
-            "monitor/s_ooa_aanvraag",
+            "monitor/s_ooa_aan",
             "monitor/s_exam",
             "monitor/s_toel",
             "vvr/s_vvr"
@@ -34,7 +34,7 @@
     "monitor vvr": {
         "queries": [
             "monitor/s_sih",
-            "betaalmail/s_ooa_aanvraag",
+            "betaalmail/s_ooa_aan",
             "betaalmail/s_opl",
             "betaalmail/s_stop",
             "vvr/s_vvr"
@@ -60,7 +60,7 @@
             "betaalmail/s_opl",
             "betaalmail/s_stop",
             "betaalmail/s_adr_nl",
-            "betaalmail/s_ooa_aanvraag",
+            "betaalmail/s_ooa_aan",
             "betaalmail/s_fin_storno",
             "betaalmail/s_fin_grp"
         ],
@@ -93,7 +93,9 @@
             "historie/s_sih_ac4_hist",
             "historie/s_mac_hist",
             "historie/s_opl_hist",
-            "historie/s_sih_vti_hist"
+            "historie/s_sih_vti_hist",
+            "historie/s_result_hist",
+            "s_stud_hist"
         ],
         "parameters": [
             "collegejaar"
@@ -128,7 +130,8 @@
             "referentie/r_opl",
             "referentie/r_tvop",
             "referentie/r_inst",
-            "referentie/r_school"
+            "referentie/r_school",
+            "referentie/r_org"
         ]
     },
     "referentie ooa": {
