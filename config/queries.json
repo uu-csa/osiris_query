@@ -95,7 +95,8 @@
             "historie/s_opl_hist",
             "historie/s_sih_vti_hist",
             "historie/s_result_hist",
-            "s_stud_hist"
+            "historie/s_stud_hist",
+            "historie/s_exam_hist"
         ],
         "parameters": [
             "collegejaar"
