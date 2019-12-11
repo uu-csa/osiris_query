@@ -74,6 +74,10 @@ def query(qd, cursor=None):
         cols = qd.columns
         dtypes = None
 
+    if not cols:
+        print('no columns')
+        cols = [column[0] for column in cursor.description]
+    print(cols)
     df = pd.DataFrame.from_records(
         cursor.fetchall(),
         columns=cols,

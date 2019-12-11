@@ -108,7 +108,14 @@ class QueryDef:
 
             meta        = ini['meta']
             query       = ini['query']
-            columns     = ini['columns']
+            if ini.has_section('columns'):
+                columns     = ini['columns']
+                try:
+                    columns = {k:columns[k] for k in columns}
+                except KeyError:
+                    columns = cls.find_cols(sql)
+            else:
+                columns = None # ---> Fetch columns from database
             # parameters  = ini['parameters']   TODO
 
             description = meta.get('description', '').strip('\n')
@@ -116,11 +123,6 @@ class QueryDef:
             qtype       = meta.get('qtype', '')
             sql         = cls.set_param(query['sql'], parameters)
             sql         = format_sql(sql)
-
-            try:
-                columns = {k:columns[k] for k in columns}
-            except KeyError:
-                columns = cls.find_cols(sql)
 
         # read as text
         else:
