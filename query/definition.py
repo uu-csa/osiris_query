@@ -2,7 +2,69 @@ import re
 import textwrap
 import configparser
 from collections import namedtuple
+from pathlib import Path
 from query.config import PATH_INPUT
+
+
+class QueryClass:
+    def __init__(
+        self,
+        name,
+        sql,
+        description=None,
+        parameters=None,
+        qtype=None,
+        columns=None,
+    ):
+        self.name        = name
+        self.qtype       = qtype
+        self.description = description
+        self.parameters  = parameters
+        self.columns     = columns
+        self.sql         = sql
+
+    def __str__(self):
+        line = f"{'-' * 80}\n"
+        repr = (
+            f"{self.__class__.__name__}\n"
+            f"{line}"
+            f"{self.name!r}\n"
+            f"{line}"
+            f"{self.sql}\n"
+            f"{line}"
+            f"Description = {self.description}\n"
+            f"Query type = {self.qtype}\n"
+            )
+        return repr
+
+    @classmethod
+    def from_ini(cls, path):
+        path = Path(path).with_suffix('.ini')
+        ini = configparser.ConfigParser(
+            allow_no_value=True,
+            interpolation=None,
+        )
+        ini.read(path, encoding='utf-8')
+
+        sql = format_sql(ini['query']['sql'])
+        columns = dict(ini['columns']) if ini.has_section('columns') else None
+        parameters = (
+            dict(ini['parameters']) if ini.has_section('parameters') else None
+        )
+
+        meta        = ini['meta'] if ini.has_section('meta') else dict()
+        name        = meta.get('name', '')
+        description = meta.get('description', '').strip('\n')
+        qtype       = meta.get('qtype', '')
+
+        return cls(
+            name,
+            sql,
+            parameters=parameters,
+            description=description,
+            qtype=qtype,
+            columns=columns,
+        )
 
 
 class QueryDef:
@@ -59,13 +121,14 @@ class QueryDef:
 
 
     def __str__(self):
+        line = f"{'-' * 80}\n"
         repr = (
             f"{self.__class__.__name__}\n"
-            f"{'-' * 80}\n"
+            f"{line}"
             f"{self.query_name!r}\n"
-            f"{'-' * 80}\n"
+            f"{line}"
             f"{self.sql}\n"
-            f"{'-' * 80}\n"
+            f"{line}"
             f"Description = {self.description}\n"
             f"Query type = {self.qtype}\n"
             )
@@ -103,20 +166,19 @@ class QueryDef:
             ini = configparser.ConfigParser(
                 allow_no_value=True,
                 interpolation=None,
-                )
+            )
             ini.read(ini_file, encoding='utf-8')
 
             meta        = ini['meta']
             query       = ini['query']
             if ini.has_section('columns'):
-                columns     = ini['columns']
-                try:
-                    columns = {k:columns[k] for k in columns}
-                except KeyError:
-                    columns = cls.find_cols(sql)
+                columns = dict(ini['columns'])
             else:
-                columns = None # ---> Fetch columns from database
-            # parameters  = ini['parameters']   TODO
+                columns = None # ---> Fetch columns from db during execution
+
+            if ini.has_section('parameters'):
+                # ini['parameters'] <-- TODO
+                pass
 
             description = meta.get('description', '').strip('\n')
             description = cls.set_param(description, parameters)
@@ -131,7 +193,7 @@ class QueryDef:
             sql = format_sql(cls.set_param(sql, parameters))
             description = None
             qtype = None
-            columns = cls.find_cols(sql)
+            columns = None
 
         # set string representation for parameters
         if param_repr is not None:
@@ -182,7 +244,6 @@ class QueryDef:
                         left = parameters[key]
                         operator = match[2]
                         right = match[3]
-
                         output = eval(left + operator + right)
                         x = x.replace(match[0], str(output))
 
@@ -199,7 +260,6 @@ class QueryDef:
                 key_slice = f'[{key}({match.group(1)})]'
                 val_slice = parameters[key][left:right]
                 x = x.replace(key_slice, val_slice)
-
         return x
 
 
@@ -212,51 +272,6 @@ class QueryDef:
             param_values = [str(v) for v in parameters.values()]
             param_values.insert(0, 'var')
             param_repr = '_'.join(param_values)
-
-
-    @staticmethod
-    def find_cols(sql):
-        """
-        Extract column names from sql statement.
-        - Select lines between 'select' and 'from'.
-        - Strip the part before the dot if present.
-        - If line contains 'as' extract name from that.
-
-        Parameters
-        ==========
-        :param sql: `string`
-
-        Return
-        ======
-        :find_cols: column names as `list` of `strings`
-        """
-
-        def strip_dot(x):
-            if '(' in x:
-                sub = x[x.find('(') + 1:x.rfind(')')]
-                if '.' in sub:
-                    x = x.replace(sub, sub.split('.')[1])
-            if '.' in x:
-                x = x.split('.')[1]
-            return x
-
-        def alias(x):
-            key_word = ' as '
-            if key_word in x:
-                return x.split(key_word)[1]
-            return x
-
-        # retrieve column names between 'select' and 'from'
-        cols = list()
-        for line in sql.split('\n'):
-            if 'select' in line:
-                continue
-            if 'from' in line:
-                break
-            line = line.strip(' ,')
-            line = strip_dot(line)
-            cols.append(line)
-        return [alias(col) for col in cols]
 
 
 def format_sql(sql, tab_length=4):
@@ -292,7 +307,6 @@ def format_sql(sql, tab_length=4):
         lines.append(line)
 
     sql = '\n'.join(lines)
-
     return sql
 
 
