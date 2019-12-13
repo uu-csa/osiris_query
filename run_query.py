@@ -19,8 +19,8 @@ def clear():
         _ = system('clear')
 
 
-def print_line(sep='='):
-    print(sep * 80)
+def print_line(symbol='='):
+    print(symbol * 80)
 
 
 def run(querydefs, parameters):

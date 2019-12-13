@@ -44,6 +44,8 @@ def query(qd, cursor=None):
     :tuple: dataframe, seconds as `float`
     """
 
+    print(qd.query_name)
+
     # connection
     if not cursor:
         cursor = connect()
@@ -75,9 +77,8 @@ def query(qd, cursor=None):
         dtypes = None
 
     if not cols:
-        print('no columns')
         cols = [column[0] for column in cursor.description]
-    print(cols)
+
     df = pd.DataFrame.from_records(
         cursor.fetchall(),
         columns=cols,
