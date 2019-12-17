@@ -1,11 +1,13 @@
 # standard library
 import sys
 import timeit
+from textwrap import indent
 from os import system, name
 from concurrent.futures import ThreadPoolExecutor
 
 #local
-from query.config import PATH_CONFIG, load_registry
+from query.config import PATHS
+from query.definition import QueryDef
 from query.execution import connect, run_query
 
 
@@ -23,21 +25,14 @@ def print_line(symbol='='):
     print(symbol * 80)
 
 
-def run(querydefs, parameters):
+def run(querydefs):
     start = timeit.default_timer()
     # CONNECT TO DATABASE
     # cursor = connect()
 
     # RUN QUERIES
     with ThreadPoolExecutor(max_workers=7) as executor:
-        [
-            executor.submit(
-                run_query,
-                query,
-                parameters=parameters,
-                )
-            for query in querydefs
-        ]
+        [executor.submit(run_query, query) for query in querydefs]
 
     # STOP TIMER AND PRINT RUNTIME
     stop = timeit.default_timer()
@@ -49,9 +44,8 @@ if __name__ == '__main__':
 
     clear()
     while True:
-        metaparams = load_registry(PATH_CONFIG / 'metaparam.json')
-        queries    = load_registry(PATH_CONFIG / 'queries.json')
-        options    = {str(idx):query for idx, query in enumerate(queries)}
+        query_sets = [x.name for x in PATHS.definitions.iterdir() if x.is_dir()]
+        options    = {str(idx):qs for idx, qs in enumerate(query_sets)}
         stop       = '.'
 
         print(
@@ -69,8 +63,8 @@ if __name__ == '__main__':
         print_line()
         print("SELECT QUERY SET TO RUN:")
         print_line('-')
-        for idx, query in options.items():
-            print(f"{idx:>2}.", query)
+        for idx, query_set in options.items():
+            print(f"{idx:>2}.", query_set)
         print_line()
         print(f"Enter {stop} to exit")
         print_line()
@@ -83,47 +77,63 @@ if __name__ == '__main__':
             select = input()
         if select == stop:
             break
-        querydefs = queries[options[select]]['queries']
+
+        qds = list()
+        for file in (PATHS.definitions / options[select]).glob('*'):
+            qds.append(QueryDef.from_ini(file))
+
+        parameters = dict()
+        for qd in qds:
+            parameters.update(qd.parameters)
 
         print()
         print_line()
-        print(f"Selected: {options[select]}")
+        print(f"QUERIES BELONGING TO: '{options[select]}'")
         print_line('-')
-        for qd in querydefs:
-            print(qd)
+        for qd in qds:
+            print(f" - {qd.name}")
         print_line()
         print()
 
-        parameters = None
-        if queries[options[select]].get('parameters', None):
-            parameters = dict()
+        print_line()
+        print(f"SET PARAMETERS:\n")
 
-            print_line()
-            print(f"SET PARAMETERS:\n")
+        for key, ptype in parameters.items():
+            val = None
+            type_description = '' if ptype is None else f" ({ptype})"
 
-            for param in queries[options[select]]['parameters']:
-                val = None
-                description = metaparams[param]['description']
-                if description:
-                    print(f"Description: {description}")
-                    print_line('-')
-                    print()
-                while not val:
-                    print(f"\033[F{' ' * 80}", end='')
-                    print(f"\r{param}: ", end='')
-                    val = input()
-                    if metaparams[param]['target'] == 'querydef':
-                        if metaparams[param]['type'] == 'int':
-                            # reject if string is not convertable to integer
-                            try:
-                                int(val)
-                                parameters[param] = val
-                            except ValueError:
-                                val = None
-                                pass
-                        else:
-                            parameters[param] = val
-                    elif metaparams[param]['target'] == 'file':
-                        querydefs = [val]
             print()
-        run(querydefs, parameters)
+            while not val:
+                print(f"\033[F{' ' * 80}", end='')
+                print(f"\r{key}{type_description}: ", end='')
+                val = input()
+
+                if ptype == 'int':
+                    # reject if string is not convertable to integer
+                    try:
+                        int(val)
+                        parameters[key] = val
+                    except ValueError:
+                        val = None
+                        pass
+                else:
+                    parameters[key] = val
+
+        for qd in qds:
+            qd(parameters)
+
+        print()
+        print_line()
+        print('QUERY DEFINITIONS:')
+        for qd in qds:
+            print_line()
+            print('Name: ', qd.name)
+            print('Filename: ', qd.filename)
+            print_line('-')
+            print('QType: ', qd.qtype)
+            print('Description:\n', indent(qd.description, prefix='  '))
+            print_line('-')
+            print('SQL:\n', indent(qd.sql, prefix='   '))
+
+        print()
+        run(qds)

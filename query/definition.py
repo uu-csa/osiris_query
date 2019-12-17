@@ -1,70 +1,9 @@
 import re
 import textwrap
-import configparser
 from collections import namedtuple
+from configparser import ConfigParser
 from pathlib import Path
-from query.config import PATH_INPUT
-
-
-class QueryClass:
-    def __init__(
-        self,
-        name,
-        sql,
-        description=None,
-        parameters=None,
-        qtype=None,
-        columns=None,
-    ):
-        self.name        = name
-        self.qtype       = qtype
-        self.description = description
-        self.parameters  = parameters
-        self.columns     = columns
-        self.sql         = sql
-
-    def __str__(self):
-        line = f"{'-' * 80}\n"
-        repr = (
-            f"{self.__class__.__name__}\n"
-            f"{line}"
-            f"{self.name!r}\n"
-            f"{line}"
-            f"{self.sql}\n"
-            f"{line}"
-            f"Description = {self.description}\n"
-            f"Query type = {self.qtype}\n"
-            )
-        return repr
-
-    @classmethod
-    def from_ini(cls, path):
-        path = Path(path).with_suffix('.ini')
-        ini = configparser.ConfigParser(
-            allow_no_value=True,
-            interpolation=None,
-        )
-        ini.read(path, encoding='utf-8')
-
-        sql = format_sql(ini['query']['sql'])
-        columns = dict(ini['columns']) if ini.has_section('columns') else None
-        parameters = (
-            dict(ini['parameters']) if ini.has_section('parameters') else None
-        )
-
-        meta        = ini['meta'] if ini.has_section('meta') else dict()
-        name        = meta.get('name', '')
-        description = meta.get('description', '').strip('\n')
-        qtype       = meta.get('qtype', '')
-
-        return cls(
-            name,
-            sql,
-            parameters=parameters,
-            description=description,
-            qtype=qtype,
-            columns=columns,
-        )
+from query.config import load_ini, config_from_ini
 
 
 class QueryDef:
@@ -74,143 +13,133 @@ class QueryDef:
     Class for storing query definitions.
 
     ## Constructor
-    Use the constructor method `from_file` to initialize an instance of
-    this class from a query file in PATH_INPUT. If the query file contains
-    any parameters, these need to be passed in as well.
+    Use the constructor method `from_ini` to initialize an instance of
+    this class from a query file.
 
-    ## Outfile
-    The outfile is the name of the file where the query results will be stored.
-    Normally, the parameters are joined as string and added to the outfile name:
-
-    > [outfile]_var_[parameters]
-
-    In case this is not desirable, pass a string to `param_repr` that will be
-    used instead of the joined parameters.
+    ## Prime for execution
+    Call the instance and pass it the parameters as a dictionary.
+    This will set all parameters within the query definition.
 
     Attributes
     ==========
-    query_name : name of the query as string
-    description : description of the query as string
-    qtype : query type as string
-    sql : sql statement as string
-    columns :
-        - column names as list, or:
-        - column name-dtype pairs as dictionary
-    outfile : filename for storing the query results as string
+    name: str
+        Name of the query.
+    filename: str
+        Filename to be used for storing the query results.
+    description: str
+        Description of the query.
+    qtype : str
+        Query type.
+    sql: str
+        SQL statement.
+    columns: dict
+        Dictionary storing the column names and associated dtypes.
+        - keys: column names;
+        - values: dtypes (may be None).
+    parameters: dict
+        Dictionary storing the parameters used in the query definition.
+        - keys: parameter name;
+        - values: parameter type.
     """
 
     def __init__(
         self,
-        query_name,
+        name,
+        filename,
         sql,
-        description=None,
-        qtype=None,
         columns=None,
-        param_repr=None,
-        ):
-
-        self.query_name = query_name
-        self.qtype = qtype
+        qtype=None,
+        description=None,
+        parameters=None,
+    ):
+        self.name        = name
+        self.filename    = filename
+        self.qtype       = qtype
         self.description = description
-        self.param_repr = param_repr
-        self.columns = columns
-        self.sql = sql
-        self.outfile = '_'.join(
-            [x for x in [query_name, param_repr] if x is not None]
-            )
+        self.parameters  = parameters
+        self.columns     = columns
+        self.sql         = sql
 
 
-    def __str__(self):
-        line = f"{'-' * 80}\n"
-        repr = (
-            f"{self.__class__.__name__}\n"
-            f"{line}"
-            f"{self.query_name!r}\n"
-            f"{line}"
-            f"{self.sql}\n"
-            f"{line}"
-            f"Description = {self.description}\n"
-            f"Query type = {self.qtype}\n"
+    def _repr_html_(self):
+        def tag(x, tag, class_=None):
+            class_ = f" class={class_}" if class_ is not None else ''
+            return f"<{tag}{class_}>{x}</{tag}>"
+
+        def item(k, v):
+            return tag(f"{tag(k, 'th')}{tag(v, 'td')}", 'tr')
+
+        def table(d, class_=None):
+            items = [f"{tag(k, 'td')}{tag(v, 'td')}" for k,v in d.items()]
+            rows = [tag(item, 'tr') for item in items]
+            return tag(''.join(rows), 'table', class_=class_)
+
+        style = tag(".qc th, td { text-align: left !important; }", 'style')
+        classname = f"<code>&lt;{self.__class__.__name__}&gt;</code>"
+        sql = tag(self.sql.replace('\n', '<br/> '), 'code')
+        columns = '' if self.columns is None else table(self.columns, 'qc')
+        params = '' if self.parameters is None else table(self.parameters, 'qc')
+
+        string = (
+            item('Name', self.name) +
+            item('Filename', self.filename) +
+            item('Qtype', self.qtype) +
+            item('Description', self.description) +
+            item('Columns', columns) +
+            item('Parameters', params) +
+            item('SQL', sql)
+        )
+        return style + classname + tag(string, 'table', 'qc')
+
+
+    def __call__(self, parameters=None):
+        if not parameters.keys() == self.parameters.keys():
+            missing = set(self.parameters.keys()) - set(parameters.keys())
+            raise ValueError(
+                "Definition is underdefined. "
+                f"Missing the following parameters: {missing}."
             )
-        return repr
+
+        for key, value in parameters.items():
+            try:
+                if self.parameters[key] == 'int':
+                    int(value)
+            except ValueError:
+                raise ValueError(
+                    f"Value for parameter '{key}' is not "
+                    f"of type {self.parameters[key]}."
+                )
+
+        self.name = self.set_param(self.name, parameters)
+        self.filename = self.set_param(self.filename, parameters)
+        self.description = self.set_param(self.description, parameters)
+        self.sql = self.set_param(self.sql, parameters)
 
 
     @classmethod
-    def from_file(cls, query_name, parameters=None, param_repr=None):
-        """
-        Construct QueryDef from file.
+    def from_ini(cls, path):
+        path = Path(path).with_suffix('.ini')
+        ini = config_from_ini(load_ini(path))
+        fields = ini._fields
 
-        Parameters
-        ==========
-        :param query_name: `str`
-            Name of the file to load from the PATH_INPUT folder.
-            (Suffix optional).
+        # optional specifications
+        columns = ini.columns if 'columns' in fields else None
+        parameters = ini.parameters if 'parameters' in fields else None
 
-        Optional keyword arguments
-        ==========================
-        :param parameters: `dict`
-            Dictionary of parameters.
-        :param param_repr: `str`
-            String to be used for representing passed in parameters.
-
-        Returns
-        =======
-        :from_file: `QueryDef` instance
-        """
-
-        path = PATH_INPUT / query_name
-        ini_file = path.with_suffix('.ini')
-
-        # read .ini file
-        if ini_file.exists():
-            ini = configparser.ConfigParser(
-                allow_no_value=True,
-                interpolation=None,
-            )
-            ini.read(ini_file, encoding='utf-8')
-
-            meta        = ini['meta']
-            query       = ini['query']
-            if ini.has_section('columns'):
-                columns = dict(ini['columns'])
-            else:
-                columns = None # ---> Fetch columns from db during execution
-
-            if ini.has_section('parameters'):
-                # ini['parameters'] <-- TODO
-                pass
-
-            description = meta.get('description', '').strip('\n')
-            description = cls.set_param(description, parameters)
-            qtype       = meta.get('qtype', '')
-            sql         = cls.set_param(query['sql'], parameters)
-            sql         = format_sql(sql)
-
-        # read as text
-        else:
-            txt_file = path.with_suffix('.txt')
-            sql = txt_file.read_text()
-            sql = format_sql(cls.set_param(sql, parameters))
-            description = None
-            qtype = None
-            columns = None
-
-        # set string representation for parameters
-        if param_repr is not None:
-            param_repr = f'var_{param_repr}'
-        elif parameters is not None:
-            param_values = [str(v) for v in parameters.values()]
-            param_values.insert(0, 'var')
-            param_repr = '_'.join(param_values)
+        meta_exists = 'meta' in fields
+        description = ini.meta.description if meta_exists else ''
+        qtype = ini.meta.qtype if meta_exists else ''
 
         return cls(
-            query_name,
-            sql,
-            description=description,
+            ini.definition.name,
+            ini.definition.filename,
+            format_sql(ini.query.sql),
             qtype=qtype,
-            columns=columns,
-            param_repr=param_repr,
-            )
+            description=description.strip('\n'),
+            columns=columns._asdict(),
+            parameters=parameters._asdict(),
+        )
+
 
     @staticmethod
     def set_param(x, parameters=None):
@@ -232,8 +161,8 @@ class QueryDef:
         """
 
         if parameters:
-            for key in parameters:
-                x = x.replace(f'[{key}]', str(parameters[key]))
+            for key, value in parameters.items():
+                x = x.replace(f'[{key}]', str(value))
 
                 # simple arithmetic
                 srch_str = fr'(\[({key})(-|\+)(\d+)\])'
@@ -241,7 +170,7 @@ class QueryDef:
                 matches = re.findall(regex, x)
                 if matches is not None:
                     for match in matches:
-                        left = parameters[key]
+                        left = value
                         operator = match[2]
                         right = match[3]
                         output = eval(left + operator + right)
@@ -258,20 +187,9 @@ class QueryDef:
                 left = None if slice_[0] == '' else int(slice_[0])
                 right = None if slice_[1] == '' else int(slice_[1])
                 key_slice = f'[{key}({match.group(1)})]'
-                val_slice = parameters[key][left:right]
+                val_slice = value[left:right]
                 x = x.replace(key_slice, val_slice)
         return x
-
-
-    @staticmethod
-    def get_param_repr(parameters):
-        # set string representation for parameters
-        if param_repr is not None:
-            param_repr = f'var_{param_repr}'
-        elif parameters is not None:
-            param_values = [str(v) for v in parameters.values()]
-            param_values.insert(0, 'var')
-            param_repr = '_'.join(param_values)
 
 
 def format_sql(sql, tab_length=4):
@@ -308,7 +226,3 @@ def format_sql(sql, tab_length=4):
 
     sql = '\n'.join(lines)
     return sql
-
-
-def get_queries(group):
-    return [query.stem for query in (PATH_INPUT / group).glob('*.ini')]

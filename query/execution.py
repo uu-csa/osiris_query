@@ -7,9 +7,8 @@ import timeit
 import pandas as pd
 import pyodbc
 
-
 # local
-from query.config import PATH_LOGIN
+from query.config import PATHS
 from query.definition import QueryDef
 from query.results import QueryResult
 from query.utils import reporter, getpw
@@ -44,8 +43,6 @@ def query(qd, cursor=None):
     :tuple: dataframe, seconds as `float`
     """
 
-    print(qd.query_name)
-
     # connection
     if not cursor:
         cursor = connect()
@@ -65,6 +62,8 @@ def query(qd, cursor=None):
             "  ___] |  |   |   ___]    | \| |__|\n"
             "\n"
         )
+        print(f"Query '{qd.name}' failed. The following error was returned:\n")
+
         for item in sys.exc_info():
             print(item)
         return
@@ -94,7 +93,7 @@ def query(qd, cursor=None):
 
 def connect():
     # get login details
-    uid, pwd = getpw(PATH_LOGIN)
+    uid, pwd = getpw(PATHS.login)
 
     # log on to database
     param = f'DSN=UUSTPRD;DBQ=UUSTPRD;STPRD;UID={uid};PWD={pwd};CHARSET=UTF8'
@@ -103,8 +102,7 @@ def connect():
 
 
 @reporter
-def run_query(query_name, cursor=None, parameters=None):
-    qd = QueryDef.from_file(query_name, parameters=parameters)
+def run_query(qd, cursor=None):
     q = QueryResult(qd, *query(qd, cursor=cursor))
     q.to_pickle()
     return None

@@ -8,10 +8,7 @@ from pathlib import Path
 import pandas as pd
 
 # local
-from query.config import PATH_CONFIG, PATH_OUTPUT, load_registry
-
-
-QUERIES = load_registry(PATH_CONFIG / 'queries.json')
+from query.config import PATHS
 
 
 class QueryResult:
@@ -21,6 +18,7 @@ class QueryResult:
         self.nrecords = len(frame)
         self.timer    = seconds
         self.dtime    = datetime.datetime.now()
+
 
     def to_pickle(self, path=None):
         """
@@ -32,7 +30,7 @@ class QueryResult:
             Path to store pickled Query.
         """
         if not path:
-            path = PATH_OUTPUT / f'{self.qd.outfile}.pkl'
+            path = PATHS.output / f'{self.qd.filename}.pkl'
 
         # pickle pack
         if not path.parent.exists():
@@ -41,10 +39,9 @@ class QueryResult:
             pickle.dump(self, f)
 
         # update query overview
-        path_overview = PATH_OUTPUT / '_queries_overview_.xlsx'
+        path_overview = PATHS.output / '_queries_overview_.xlsx'
 
         query_data = vars(self.qd).copy()
-        del query_data['outfile']
         query_data.update(vars(self))
         for key in ['frame', 'qd']:
             del query_data[key]
@@ -67,7 +64,7 @@ def read_pickle(query_name):
     if query_name.startswith('./'):
         path = Path(query_name[2:]).with_suffix('.pkl')
     else:
-        path = (PATH_OUTPUT / f'{query_name}').with_suffix('.pkl')
+        path = (PATHS.output / f'{query_name}').with_suffix('.pkl')
     with open(path, 'rb') as f:
         return pickle.load(f)
 

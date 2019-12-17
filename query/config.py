@@ -1,30 +1,110 @@
+"""
+This module loads the settings from config.ini.
+"""
+
 # standard library
 import json
 from collections import namedtuple
+from configparser import ConfigParser
 from pathlib import Path
 
 
-PATH_LIB    = Path(__file__).resolve().parent.parent
-PATH_CONFIG = PATH_LIB / 'config'
-PATH_OUTPUT = PATH_LIB / 'output'
-PATH_INPUT  = PATH_LIB / 'definitions'
-PATH_LOGIN  = Path('u:/uustprd.txt')
+PATH_LIB = Path(__file__).resolve().parent.parent
+CFG_FILE = PATH_LIB / 'config.ini'
+encoding = 'utf-8' # encoding of ini file only
+
+QUOTECHAR = '"'
+SEPARATOR = ','
+BOOLEAN_STATES = {
+    'true': True, 'false': False,
+    't':    True, 'f':     False,
+    '1':    True, '0':     False,
+    'yes':  True, 'no':    False,
+    'on':   True, 'off':   False,
+}
 
 
-def load_registry(filename):
-    # load parameters
-    with open(filename, 'r', encoding='utf8') as f:
-        return json.load(f)
+def load_ini(filename):
+    ini = ConfigParser(allow_no_value=True, interpolation=None)
+    ini.read(filename, encoding=encoding)
+    return ini
 
 
-def register(filename, section, queries, parameters):
-    registry = dict()
-    if filename.exists():
-        registry = load_registry(filename)
-    registry[section] = {
-        'parameters': parameters,
-        'queries': queries,
-        }
-    with open (filename, 'w', encoding='utf8') as f:
-        f.write(json.dumps(registry, indent=4))
-    return None
+def config_from_ini(ini):
+    Config = namedtuple('Config', [section for section in ini])
+    sections = list()
+    for section in ini:
+        sections.append(get_section(ini, section))
+    return Config._make(sections)
+
+
+def ntuple_from_section(ini, section):
+    return namedtuple(section, [item for item in ini[section]])
+
+
+def get_section(ini, section, func=None):
+    Section = ntuple_from_section(ini, section)
+    values = list()
+    for item in ini[section]:
+        value = parse_value(ini[section][item])
+        if func:
+            value = func(value)
+        values.append(value)
+    return Section._make(values)
+
+
+def parse_value(value):
+    if value is None:
+        return None
+
+    value = value.strip('\n ')
+    try: return int(value)
+    except ValueError: pass
+    try: return float(value)
+    except ValueError: pass
+
+    if value[:1] == QUOTECHAR and value[-1:] == QUOTECHAR:
+        return value.strip(QUOTECHAR)
+    if value[:1] == '[' and value[-1:] == ']':
+        return get_list(value[1:-1].strip('\n '))
+    if any(item == value.lower() for item in BOOLEAN_STATES):
+        return BOOLEAN_STATES[value.lower()]
+    return value
+
+
+def chunker(value):
+    def chunk(value, idx):
+        return value[:idx], value[idx+1:].strip('\n ')
+
+    if len(value) == 0:
+        return None, None
+    elif value[0] == QUOTECHAR:
+        idx = value.find(value[0], 1) + 1
+        return chunk(value, idx)
+    else:
+        idx = value.find(SEPARATOR)
+        if idx == -1:
+            return value, None
+        return chunk(value, idx)
+
+
+def get_list(value):
+    lst = []
+    while True:
+        chunk, value = chunker(value)
+        if chunk is not None:
+            lst.append(parse_value(chunk))
+        if value is None:
+            break
+    if len(lst) > 1:
+        return lst
+    return lst
+
+
+# easy access to settings and paths
+config = load_ini(CFG_FILE)
+PATHS  = get_section(
+    load_ini(CFG_FILE),
+    'PATHS',
+    func=lambda x: PATH_LIB / x[1:] if x.startswith('/') else Path(x)
+)
