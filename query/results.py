@@ -60,18 +60,14 @@ class QueryResult:
         return None
 
 
-def read_pickle(query_name):
-    if query_name.startswith('./'):
-        path = Path(query_name[2:]).with_suffix('.pkl')
-    else:
-        path = (PATHS.output / f'{query_name}').with_suffix('.pkl')
-    with open(path, 'rb') as f:
-        return pickle.load(f)
-
-
-def load_frame(query_name):
-    q = read_pickle(query_name)
-    return q.frame
+    @staticmethod
+    def read_pickle(query_name):
+        if query_name.startswith('./'):
+            path = Path(query_name[2:]).with_suffix('.pkl')
+        else:
+            path = (PATHS.output / f'{query_name}').with_suffix('.pkl')
+        with open(path, 'rb') as f:
+            return pickle.load(f)
 
 
 def load_set(query_set, parameters=None):
