@@ -136,8 +136,8 @@ class QueryDef:
             format_sql(ini.query.sql),
             qtype=qtype,
             description=description.strip('\n'),
-            columns=columns._asdict(),
-            parameters=parameters._asdict(),
+            columns=dict() if columns is None else columns._asdict(),
+            parameters=dict() if parameters is None else parameters._asdict(),
         )
 
 
