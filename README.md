@@ -27,7 +27,7 @@ De koppeling naar OSIRIS gebeurt op basis van [pyodbc](https://github.com/mkleeh
 ---
 
 ## Query definities
-Een query definitie bestaat in essentie uit een SQL statement. Daarnaast wordt in de definitie aanvullende gegevens over de query opgeslagen volgens een vaste structuur. [Hier](https://github.com/uu-csa/osiris_query/blob/master/queries/_template_.ini) vind je een geannoteerd voorbeeld van hoe een dergelijk configuratiebestand eruit ziet.
+Een query definitie bestaat in essentie uit een SQL statement. Daarnaast wordt in de definitie aanvullende gegevens over de query opgeslagen volgens een vaste structuur. [Hier](https://github.com/uu-csa/osiris_query/blob/master/definitions/_template_.ini) vind je een geannoteerd voorbeeld van hoe een dergelijk configuratiebestand eruit ziet.
 
 In het kort stelt bevat de query definitie de volgende elementen:
 
@@ -106,9 +106,9 @@ De code bevat de volgende modules:
 Deze modules worden doorgaans via [scripts](#queries-uitvoeren) opgeroepen. De eindgebruiker zal in de meeste situaties niet direct met deze objecten hoeven te werken.
 
 ### Definition
-De basis van deze module is de [`QueryDef`](https://github.com/uu-csa/osiris_query/blob/master/src/querydef.py) class. Deze class regelt alles rondom de query definitie:
+De basis van deze module is de `QueryDef`class. Deze class regelt alles rondom de query definitie:
 
-* Inlezen van de query definities. Deze zijn doorgaans in de [map 'definitions'](https://github.com/uu-csa/osiris_query/tree/master/queries) opgeslagen.
+* Inlezen van de query definities. Deze zijn doorgaans in de [map 'definitions'](https://github.com/uu-csa/osiris_query/tree/master/definitions) opgeslagen.
 * Updaten van de query definities op basis van de opgegeven parameters.
 
 Indien een query definitie parameters bevat dan kun je deze pas correct uitvoeren als de aanwezige parameters een waarde hebben gekregen. Binnen Python gebeurt dit door het `QueryDef` object de parameters met hun waarden als `dict` te voeden:
@@ -134,7 +134,7 @@ qd(parameters)
 Deze module verzorgt de executie van de query door de verbinding met de database te leggen, vervolgens de SQL query uit te voeren en tot slot de opgehaalde resultaten op te slaan. De functie `run_query` legt de verbinding tussen de `QueryDef` (zie hierboven) en de `QueryResult` (zie hieronder) objecten.
 
 ### Results
-De basis van deze module is de [`QueryResult`](https://github.com/uu-csa/osiris_query/blob/master/src/query.py) class. Je kunt opgeslagen resultaten als volgt laden:
+De basis van deze module is de `QueryResult` class. Je kunt opgeslagen resultaten als volgt laden:
 
 ```Python
 from query.results import QueryResult
