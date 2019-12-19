@@ -215,7 +215,9 @@ def format_sql(sql, tab_length=4):
     for line in sql.splitlines():
         if line == '':
             continue
-        if not any(clause in line for clause in clauses):
+        if any(clause in line for clause in clauses):
+            line = f'{(depth) * tab}{line}'
+        else:
             line = f'{(depth + 1) * tab}{line}'
         if '(' in line:
             depth += 1
