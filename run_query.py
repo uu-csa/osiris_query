@@ -72,8 +72,8 @@ def run(querydefs):
     stop = timeit.default_timer()
     sec = stop - start
 
-    line_printer()
-    print(f"Total runtime: {sec} seconds.")
+    line_printer('-')
+    print(f"Total runtime: {round(sec, 2)} seconds.")
 
 
 if __name__ == '__main__':
@@ -101,8 +101,8 @@ if __name__ == '__main__':
         line_printer('-')
         for idx, query_set in options.items():
             print(f"{idx:>2}.", query_set)
-        line_printer()
-        print(f"Enter {stop} to exit")
+        line_printer('-')
+        print(f" Enter {stop} to exit")
         line_printer()
         print()
 
@@ -132,7 +132,8 @@ if __name__ == '__main__':
         print()
 
         line_printer()
-        print(f"SET PARAMETERS:\n")
+        print(f"SET PARAMETERS:")
+        line_printer()
 
         for key, ptype in parameters.items():
             val = None
@@ -178,5 +179,6 @@ if __name__ == '__main__':
             line_printer('-')
             print('SQL:\n', indent(qd.sql, prefix='  '), '\n')
 
-        print()
+        line_printer()
         run(qds)
+        line_printer()

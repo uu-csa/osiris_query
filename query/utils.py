@@ -13,7 +13,9 @@ def reporter(func):
         value = func(*args, **kwargs)
         stop = timeit.default_timer()
         sec = stop - start
-        print(f"{func.__name__!r} returned {value!r} in {sec} seconds")
+        print(
+            f"{func.__name__!r} returned {value!r} in {round(sec, 2)} seconds"
+        )
         return value
     return wrapper_reporter
 
