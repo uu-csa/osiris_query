@@ -20,9 +20,7 @@ De query definities worden beheerd in de map 'definitions'. Met behulp van de sc
 
 ## Installatie
 
-De koppeling naar OSIRIS gebeurt op basis van [pyodbc](https://github.com/mkleehammer/pyodbc/wiki). De geïnstalleerde odbc-driver op UU-computers is standaard 32-bit. Om deze driver te kunnen gebruiken, moet je een 32-bit versie van Python gebruiken. Dit kan door binnen Anaconda een virtual environment o
-
-**LET OP** p te zetten. Deze envkun je installeren via:create_32_bit_env.bat`](https://github.com/zijn uucsa/odeze toolblob/mastr/create_32_bit_env.bat Indien je voor een bepaalde tabel de kolomnamen wilt opvragen start dan [`run_query`]()). 
+De koppeling naar OSIRIS gebeurt op basis van [pyodbc](https://github.com/mkleehammer/pyodbc/wiki). De geïnstalleerde odbc-driver op UU-computers is standaard 32-bit. Om deze driver te kunnen gebruiken, moet je daarom een 32-bit versie van Python gebruiken. Dit kan door binnen Anaconda een virtual environment op te zetten. Deze env kun je installeren via: [create_32_bit_env.bat`](https://github.com/uu-csa/osiris_query/blob/dev/create_32_bit_env.bat). 
 
 ---
 
