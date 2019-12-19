@@ -1,7 +1,7 @@
 # standard library
 import sys
 import timeit
-from textwrap import indent, wrap
+from textwrap import wrap, indent
 from os import system, name
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -83,6 +83,7 @@ if __name__ == '__main__':
         query_sets = [x.name for x in PATHS.definitions.iterdir() if x.is_dir()]
         options    = {str(idx):qs for idx, qs in enumerate(query_sets)}
         stop       = '.'
+        refresh    = '!'
 
         print(
         u"""
@@ -97,7 +98,7 @@ if __name__ == '__main__':
         )
 
         line_printer()
-        print("SELECT QUERY SET TO RUN:")
+        print("SELECT QUERY SET:")
         line_printer('-')
         for idx, query_set in options.items():
             print(f"{idx:>2}.", query_set)
@@ -107,12 +108,14 @@ if __name__ == '__main__':
         print()
 
         select = None
-        while select not in options.keys() and select != stop:
+        while select not in options.keys() and select not in [stop, refresh]:
             print(f"\033[F{' ' * 80}", end='')
             print('\rSelection: ', end='')
             select = input()
         if select == stop:
             break
+        if select == refresh:
+            continue
 
         qds = list()
         for file in (PATHS.definitions / options[select]).glob('*.ini'):
@@ -166,7 +169,7 @@ if __name__ == '__main__':
             description = wrap(
                 qd.description,
                 width=80,
-                initial_indent='  ',
+                initial_indent=' ',
                 subsequent_indent='  ',
             )
 
@@ -177,7 +180,7 @@ if __name__ == '__main__':
             print('QType:    ', qd.qtype)
             print('Description:\n', '\n'.join(description))
             line_printer('-')
-            print('SQL:\n', indent(qd.sql, prefix='  '), '\n')
+            print('SQL:\n', indent(qd.sql, prefix=' '), '\n')
 
         line_printer()
         run(qds)
