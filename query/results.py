@@ -4,9 +4,6 @@ import pickle
 from collections import namedtuple
 from pathlib import Path
 
-# third party
-import pandas as pd
-
 # local
 from query.config import PATHS
 
@@ -18,6 +15,10 @@ class QueryResult:
         self.nrecords = len(frame)
         self.timer    = seconds
         self.dtime    = datetime.datetime.now()
+
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__}, '{self.qd.name}', {self.nrecords}>"
 
 
     def to_pickle(self, path=None):
@@ -38,25 +39,6 @@ class QueryResult:
         with open(path, 'wb') as f:
             pickle.dump(self, f)
 
-        # update query overview
-        path_overview = PATHS.output / '_queries_overview_.xlsx'
-
-        query_data = vars(self.qd).copy()
-        query_data.update(vars(self))
-        for key in ['frame', 'qd']:
-            del query_data[key]
-
-        cols = list(query_data.keys())
-        vals = list(query_data.values())
-
-        try:
-            df = pd.read_excel(path_overview, index_col=0)
-        except FileNotFoundError:
-            df = pd.DataFrame()
-        row = {path: vals}
-        df_row = pd.DataFrame.from_dict(row, orient='index', columns=cols)
-        df = df.append(df_row, sort=False)
-        df.to_excel(path_overview)
         return None
 
 

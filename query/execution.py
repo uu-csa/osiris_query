@@ -66,7 +66,7 @@ def query(qd, cursor=None):
 
         for item in sys.exc_info():
             print(item)
-        return
+        return None
 
     if isinstance(qd.columns, dict):
         cols = qd.columns.keys()
@@ -102,7 +102,8 @@ def connect():
 
 
 @reporter
-def run_query(qd, cursor=None):
+def run_query(qd, save=True, cursor=None):
     q = QueryResult(qd, *query(qd, cursor=cursor))
-    q.to_pickle()
-    return None
+    if save:
+        q.to_pickle()
+    return q

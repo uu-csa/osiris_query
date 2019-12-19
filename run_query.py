@@ -1,9 +1,12 @@
 # standard library
 import sys
 import timeit
-from textwrap import indent
+from textwrap import indent, wrap
 from os import system, name
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+# third party
+import pandas as pd
 
 #local
 from query.config import PATHS
@@ -21,23 +24,56 @@ def clear():
         _ = system('clear')
 
 
-def print_line(symbol='='):
+def line_printer(symbol='='):
     print(symbol * 80)
 
 
 def run(querydefs):
     start = timeit.default_timer()
-    # CONNECT TO DATABASE
-    # cursor = connect()
+
+    all_results = list()
 
     # RUN QUERIES
     with ThreadPoolExecutor(max_workers=7) as executor:
-        [executor.submit(run_query, query) for query in querydefs]
+        futures = [executor.submit(run_query, query) for query in querydefs]
+        for future in as_completed(futures):
+            result = future.result()
+            data = vars(result.qd).copy()
+            data['columns'] = '|'.join([col for col in data['columns']])
+            data.update(vars(result))
+            for key in ['parameters', 'frame', 'qd']:
+                del data[key]
+            all_results.append(data)
+
+    # update query overview
+    path_overview = PATHS.output / '_queries_overview_.xlsx'
+
+    try:
+        df = pd.read_excel(path_overview, index_col=0)
+    except FileNotFoundError:
+        columns = [
+            'qtype',
+            'name',
+            'filename',
+            'description',
+            'sql',
+            'columns',
+            'nrecords',
+            'timer',
+            'dtime',
+            ]
+        df = pd.DataFrame(columns=columns)
+
+    data = pd.DataFrame(all_results)
+    df = df.append(data, sort=False, ignore_index=True)
+    df.to_excel(path_overview)
 
     # STOP TIMER AND PRINT RUNTIME
     stop = timeit.default_timer()
     sec = stop - start
-    print(f"\n{'=' * 80}\nTotal runtime: {sec} seconds.")
+
+    line_printer()
+    print(f"Total runtime: {sec} seconds.")
 
 
 if __name__ == '__main__':
@@ -60,14 +96,14 @@ if __name__ == '__main__':
         """
         )
 
-        print_line()
+        line_printer()
         print("SELECT QUERY SET TO RUN:")
-        print_line('-')
+        line_printer('-')
         for idx, query_set in options.items():
             print(f"{idx:>2}.", query_set)
-        print_line()
+        line_printer()
         print(f"Enter {stop} to exit")
-        print_line()
+        line_printer()
         print()
 
         select = None
@@ -79,7 +115,7 @@ if __name__ == '__main__':
             break
 
         qds = list()
-        for file in (PATHS.definitions / options[select]).glob('*'):
+        for file in (PATHS.definitions / options[select]).glob('*.ini'):
             qds.append(QueryDef.from_ini(file))
 
         parameters = dict()
@@ -87,15 +123,15 @@ if __name__ == '__main__':
             parameters.update(qd.parameters)
 
         print()
-        print_line()
+        line_printer()
         print(f"QUERIES BELONGING TO: '{options[select]}'")
-        print_line('-')
+        line_printer('-')
         for qd in qds:
             print(f" - {qd.name}")
-        print_line()
+        line_printer()
         print()
 
-        print_line()
+        line_printer()
         print(f"SET PARAMETERS:\n")
 
         for key, ptype in parameters.items():
@@ -123,17 +159,24 @@ if __name__ == '__main__':
             qd(parameters)
 
         print()
-        print_line()
+        line_printer()
         print('QUERY DEFINITIONS:')
         for qd in qds:
-            print_line()
-            print('Name: ', qd.name)
+            description = wrap(
+                qd.description,
+                width=80,
+                initial_indent='  ',
+                subsequent_indent='  ',
+            )
+
+            line_printer()
+            print('Name:     ', qd.name)
             print('Filename: ', qd.filename)
-            print_line('-')
-            print('QType: ', qd.qtype)
-            print('Description:\n', indent(qd.description, prefix='  '))
-            print_line('-')
-            print('SQL:\n', indent(qd.sql, prefix='   '))
+            line_printer('-')
+            print('QType:    ', qd.qtype)
+            print('Description:\n', '\n'.join(description))
+            line_printer('-')
+            print('SQL:\n', indent(qd.sql, prefix='  '), '\n')
 
         print()
         run(qds)
