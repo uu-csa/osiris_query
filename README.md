@@ -63,19 +63,21 @@ Parameters hebben extra functionaliteit om de gebruiker meer flexibiliteit te ge
 
 > #### Optellen/aftrekken
 > Als de parameter verwijst naar een getal (zoals bv. een collegejaar) dan kun je binnen de blokhaken simpele optel- en aftreksommen maken. Dit doe je door achter de parameternaam maar binnen de blokhaken +/- `n` toe te voegen, waarbij `n` verwijst naar het getal dat je bij de waarde wilt optellen of aftrekken:
-> Notatie          | Parameter | Operator | n   | Resultaat
-> :--------------- | --------: | :------: | --: | --------:
-> [collegejaar+1]  | 2019      | +        | 1   | 2020
-> [collegejaar-12] | 2019      | -        | 12  | 2007
->
+
+Notatie          | Parameter | Operator | n   | Resultaat
+:--------------- | --------: | :------: | --: | --------:
+[collegejaar+1]  | 2019      | +        | 1   | 2020
+[collegejaar-12] | 2019      | -        | 12  | 2007
+
 > #### Slice-notatie
 > Het is mogelijk om slechts een deel van de waarde van een parameter te selecteren met behulp van de zogenaamde [slice](https://docs.python.org/3/library/functions.html?highlight=slice#slice)-notatie. Geef achter de parameternaam maar binnen de blokhaken tussen ronde haken het startkarakter en eindkarakter op, gescheiden door een dubbele punt:
-> Notatie            | Parameter | Slice | Resultaat
-> :----------------- | --------: | :---: | --------:
-> [collegejaar(:)]   | 2019      | (:)   | 2019
-> [collegejaar(1:2)] | 2019      | (1:2) | 01
-> [collegejaar(:3)]  | 2019      | (:3)  | 20
-> [collegejaar(2:)]  | 2019      | (2:)  | 19
+
+Notatie            | Parameter | Slice | Resultaat
+:----------------- | --------: | :---: | --------:
+[collegejaar(:)]   | 2019      | (:)   | 2019
+[collegejaar(1:2)] | 2019      | (1:2) | 01
+[collegejaar(:3)]  | 2019      | (:3)  | 20
+[collegejaar(2:)]  | 2019      | (2:)  | 19
 
 ---
 
