@@ -1,4 +1,6 @@
 *
+!.gitignore
 !_template_.ini
 !_template_empty_.ini
-!.gitignore
+!osiris_tables
+!osiris_table_column_names
