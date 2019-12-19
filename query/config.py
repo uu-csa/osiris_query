@@ -25,6 +25,10 @@ BOOLEAN_STATES = {
 
 
 def load_ini(filename):
+    if not Path(filename).exists():
+        raise FileNotFoundError(
+            f"Cannot find '{filename}'"
+        )
     ini = ConfigParser(allow_no_value=True, interpolation=None)
     ini.read(filename, encoding=encoding)
     return ini
