@@ -7,3 +7,5 @@ testing/*
 !testing/.gitkeep
 *.code-workspace
 q_*.py
+database_explorer.ipynb
+!notebook/database_explorer.ipynb
