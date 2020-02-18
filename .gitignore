@@ -1,6 +1,7 @@
 __pycache__/
 .vscode/
 .ipynb_checkpoints/
+config/*
 output/*
 !output/.gitkeep
 testing/*
