@@ -1,15 +1,14 @@
 import timeit
 import functools
+from configparser import ConfigParser
 from pathlib import Path
+from collections import namedtuple
 
 
 def reporter(func):
     @functools.wraps(func)
     def wrapper_reporter(*args, **kwargs):
         start = timeit.default_timer()
-        args_repr = [f'{a!s}' for a in args]
-        kwargs_repr = [f'{k}={v!s}' for k, v in kwargs.items()]
-        signature = '\n'.join(args_repr + kwargs_repr)
         value = func(*args, **kwargs)
         stop = timeit.default_timer()
         sec = stop - start
@@ -25,6 +24,19 @@ def getpw(path):
     path = Path(path)
     login = path.read_text().split('\n')[1].split(',')
     return login[0].strip(), login[1].strip()
+
+
+def get_credentials(path):
+    "Retrieve login credentials from file."
+
+    if not path.exists():
+        raise FileNotFoundError(
+            f"File with login credentials not found: '{path}'"
+        )
+    config = ConfigParser()
+    config.read(path)
+    Creds = namedtuple('Creds', [item for item in config['credentials']])
+    return Creds(**{k:v for k, v in config['credentials'].items()})
 
 
 def studnum_to_string(

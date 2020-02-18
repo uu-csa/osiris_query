@@ -11,7 +11,7 @@ import pyodbc
 from query.config import PATHS
 from query.definition import QueryDef
 from query.results import QueryResult
-from query.utils import reporter, getpw
+from query.utils import reporter, getpw, get_credentials
 
 
 def query(qd, cursor=None):
@@ -92,11 +92,11 @@ def query(qd, cursor=None):
 
 
 def connect():
-    # get login details
-    uid, pwd = getpw(PATHS.login)
+    # get login credentials
+    creds = get_credentials(PATHS.login)
 
     # log on to database
-    param = f'DSN=UUSTPRD;DBQ=UUSTPRD;STPRD;UID={uid};PWD={pwd};CHARSET=UTF8'
+    param = f'DSN={creds.dsn};UID={creds.uid};PWD={creds.pwd};CHARSET=UTF8'
     conn = pyodbc.connect(param)
     return conn.cursor()
 

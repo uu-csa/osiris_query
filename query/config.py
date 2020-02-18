@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 PATH_LIB = Path(__file__).resolve().parent.parent
-CFG_FILE = PATH_LIB / 'config.ini'
+CFG_FILE = PATH_LIB / 'config/config.ini'
 encoding = 'utf-8' # encoding of ini file only
 
 QUOTECHAR = '"'
