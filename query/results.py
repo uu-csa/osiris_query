@@ -9,6 +9,32 @@ from query.config import PATHS
 
 
 class QueryResult:
+    """
+    QueryResult
+    ===========
+
+    This class provides access to the query results and its meta data.
+
+    Attributes
+    ==========
+    qd : QueryDef
+        Holds the meta data of the query.
+    frame : DataFrame
+        Df with the query data.
+    nrecords: int
+        Number of records in the query data.
+    timer:
+        Execution time.
+    dtime:
+        Execution date and time.
+
+    Methods
+    =======
+    - to_pickle
+    - read_pickle
+    - view_sets
+    - view_queries
+    """
     def __init__(self, qd, frame, seconds=None):
         self.qd       = qd
         self.frame    = frame
@@ -23,12 +49,12 @@ class QueryResult:
 
     def to_pickle(self, path=None):
         """
-        Save Query to pickle.
+        Save QueryResult to pickle.
 
         Optional key-word arguments
         ===========================
         :param path: `Path`
-            Path to store pickled Query.
+            Path to store pickled QueryResult.
         """
         if not path:
             path = PATHS.output / f'{self.qd.filename}.pkl'
@@ -43,13 +69,50 @@ class QueryResult:
 
 
     @staticmethod
-    def read_pickle(query_name):
-        if query_name.startswith('./'):
-            path = Path(query_name[2:]).with_suffix('.pkl')
+    def read_pickle(name=None, path=None):
+        """
+        Read QueryResult from pickle.
+
+        Optional key-word arguments
+        ===========================
+        :param name: `str`
+            Name of the query to be loaded.
+            For example: 'monitor/inschrijfhistorie_2019'
+        :param path: `Path`
+            Path to stored pickled QueryResult
+        """
+
+        if name is not None:
+            path = (PATHS.output / f'{name}').with_suffix('.pkl')
+        elif path is not None:
+            path = Path(path).with_suffix('.pkl')
         else:
-            path = (PATHS.output / f'{query_name}').with_suffix('.pkl')
+            raise ValueError(
+                "Either query name or query path is needed to load query.")
         with open(path, 'rb') as f:
             return pickle.load(f)
+
+
+    @staticmethod
+    def view_sets():
+        """
+        Print available sets in PATHS.output.
+        """
+        path = PATHS.output
+        for item in path.glob('**'):
+            print(item.relative_to(path))
+
+
+    @staticmethod
+    def view_queries(queryset):
+        """
+        Print avialbable query results in PATHS.output / queryset.
+        (Use view_sets to view available sets.)
+        """
+        base = PATHS.output
+        path = PATHS.output / queryset
+        for item in path.glob('**/*.*'):
+            print(item.relative_to(base).with_suffix(''))
 
 
 def load_set(query_set, parameters=None):
