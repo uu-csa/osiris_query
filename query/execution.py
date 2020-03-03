@@ -66,7 +66,7 @@ def query(qd, cursor=None):
 
         for item in sys.exc_info():
             print(item)
-        return None
+        return pd.DataFrame(), 0
 
     if isinstance(qd.columns, dict):
         cols = qd.columns.keys()
@@ -103,7 +103,8 @@ def connect():
 
 @reporter
 def run_query(qd, save=True, cursor=None):
-    q = QueryResult(qd, *query(qd, cursor=cursor))
+    results = query(qd, cursor=cursor)
+    q = QueryResult(qd, *results)
     if save:
         q.to_pickle()
     return q
