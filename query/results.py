@@ -35,6 +35,7 @@ class QueryResult:
     - view_sets
     - view_queries
     """
+
     def __init__(self, qd, frame, seconds=None):
         self.qd       = qd
         self.frame    = frame
@@ -56,6 +57,7 @@ class QueryResult:
         :param path: `Path`
             Path to store pickled QueryResult.
         """
+
         if not path:
             path = PATHS.output / f'{self.qd.filename}.pkl'
 
@@ -64,6 +66,27 @@ class QueryResult:
             path.parent.mkdir(parents=True)
         with open(path, 'wb') as f:
             pickle.dump(self, f)
+
+        return None
+
+
+    def to_excel(self, path=None):
+        """
+        Save dataframe from the QueryResult as an excel file.
+
+        Optional key-word arguments
+        ===========================
+        :param path: `Path`
+            Path to store the excel sheet.
+        """
+
+        if not path:
+            path = PATHS.output / f'{self.qd.filename}.xlsx'
+
+        # pickle pack
+        if not path.parent.exists():
+            path.parent.mkdir(parents=True)
+        self.frame.to_excel(path)
 
         return None
 
@@ -98,9 +121,11 @@ class QueryResult:
         """
         Print available sets in PATHS.output.
         """
+
         path = PATHS.output
         for item in path.glob('**'):
             print(item.relative_to(path))
+        return None
 
 
     @staticmethod
@@ -109,13 +134,15 @@ class QueryResult:
         Print avialbable query results in PATHS.output / queryset.
         (Use view_sets to view available sets.)
         """
+
         base = PATHS.output
         path = PATHS.output / queryset
         for item in path.glob('**/*.*'):
             print(item.relative_to(base).with_suffix(''))
+        return None
 
 
-def load_set(query_set, parameters=None):
+def load_set(queryset, parameters=None):
     """
     Load a set of queries as defined in config/queries.json.
 
@@ -136,11 +163,7 @@ def load_set(query_set, parameters=None):
         Namedtuple containing all `DataFrames` in the query set.
     """
 
-    def get_name(x):
-        x = x.split('/')[-1]
-        if '_' in x[:2]:
-            return x[2:]
-        return x
+    gen = QueryResult.fetch_queries(queryset)
 
     if isinstance(query_set, list):
         queries = query_set
