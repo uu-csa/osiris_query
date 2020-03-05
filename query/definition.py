@@ -18,7 +18,7 @@ class QueryDef:
 
     ## Prime for execution
     Call the instance and pass it the parameters as a dictionary.
-    This will set all parameters within the query definition.
+    This will prime the query defintion by setting any parameters within the query definition.
 
     Attributes
     ==========
@@ -62,6 +62,8 @@ class QueryDef:
 
 
     def _repr_html_(self):
+        "Return query definition as formatted html (for use in Jupyter Lab)."
+
         def tag(x, tag, class_=None):
             class_ = f" class={class_}" if class_ is not None else ''
             return f"<{tag}{class_}>{x}</{tag}>"
@@ -93,6 +95,10 @@ class QueryDef:
 
 
     def __call__(self, parameters=None):
+        "Prime the query definition by setting parameters (if any)."
+
+        if not self.parameters:
+            return None
         if not parameters.keys() == self.parameters.keys():
             missing = set(self.parameters.keys()) - set(parameters.keys())
             raise ValueError(
@@ -118,6 +124,8 @@ class QueryDef:
 
     @classmethod
     def from_ini(cls, path):
+        "Load query definition from .ini file."
+
         path = Path(path).with_suffix('.ini')
         ini = config_from_ini(load_ini(path))
         fields = ini._fields
