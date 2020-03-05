@@ -178,12 +178,14 @@ def get_user_input_parameters(parameters):
                 # reject if string is not convertable to integer
                 try:
                     int(val)
-                    parameters[key] = val
                 except ValueError:
                     val = None
                     pass
-            else:
-                parameters[key] = val
+            elif isinstance(ptype, list):
+                if val not in ptype:
+                    val = None
+
+            parameters[key] = val
     return parameters
 
 
