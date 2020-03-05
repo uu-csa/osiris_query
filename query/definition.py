@@ -99,14 +99,16 @@ class QueryDef:
 
         if not self.parameters:
             return None
-        if not parameters.keys() == self.parameters.keys():
+        if not all([k in parameters.keys() for k in self.parameters.keys()]):
             missing = set(self.parameters.keys()) - set(parameters.keys())
             raise ValueError(
-                "Definition is underdefined. "
+                f"Definition for '{self.name}' is underdefined. "
                 f"Missing the following parameters: {missing}."
             )
 
         for key, value in parameters.items():
+            if key not in self.parameters.keys():
+                continue
             try:
                 if self.parameters[key] == 'int':
                     int(value)
@@ -198,6 +200,21 @@ class QueryDef:
                 val_slice = value[left:right]
                 x = x.replace(key_slice, val_slice)
         return x
+
+
+    @staticmethod
+    def fetch_queries(queryset):
+        """
+        Print avialbable query results in PATHS.definitions / queryset.
+        (Use view_sets to view available sets.)
+        """
+
+        base = PATHS.definitions
+        path = PATHS.definitions / queryset
+        queries = {}
+        for item in path.glob('**/*.*'):
+            queries[item.relative_to(path).with_suffix('').name] = item
+        return queries
 
 
 def format_sql(sql, tab_length=4):
