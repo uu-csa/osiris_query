@@ -3,7 +3,7 @@ import textwrap
 from collections import namedtuple
 from configparser import ConfigParser
 from pathlib import Path
-from query.config import load_ini, config_from_ini
+from query.config import PATHS, load_ini, config_from_ini
 
 
 class QueryDef:
@@ -125,10 +125,18 @@ class QueryDef:
 
 
     @classmethod
-    def from_ini(cls, path):
+    def from_ini(cls, path=None, name=None, queryset=None):
         "Load query definition from .ini file."
 
-        path = Path(path).with_suffix('.ini')
+        if name:
+            if not queryset:
+                queryset = ''
+            path = (
+                PATHS.definitions / queryset / f'{name}'
+            ).with_suffix('.ini')
+        else:
+            path = Path(path).with_suffix('.ini')
+        print(path.absolute())
         ini = config_from_ini(load_ini(path))
         fields = ini._fields
 
