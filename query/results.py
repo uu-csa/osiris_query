@@ -116,29 +116,60 @@ class QueryResult:
             return pickle.load(f)
 
 
-    @staticmethod
-    def view_sets():
-        """
-        Print available sets in PATHS.output.
-        """
+    # @staticmethod
+    # def view_sets():
+    #     """
+    #     Print available sets in PATHS.output.
+    #     """
 
+    #     path = PATHS.output
+    #     for item in path.glob('**'):
+    #         print(item.relative_to(path))
+    #     return None
+
+
+    # @staticmethod
+    # def view_queries(queryset):
+    #     """
+    #     Print avialbable query results in PATHS.output / queryset.
+    #     (Use view_sets to view available sets.)
+    #     """
+
+    #     base = PATHS.output
+    #     path = PATHS.output / queryset
+    #     for item in path.glob('**/*.*'):
+    #         print(item.relative_to(base).with_suffix(''))
+    #     return None
+
+
+    @staticmethod
+    def fetch_sets():
+        """
+        Return available sets in PATHS.output.
+        """
         path = PATHS.output
-        for item in path.glob('**'):
-            print(item.relative_to(path))
+        return [item.relative_to(path) for item in path.glob('**')]
+
+
+    @classmethod
+    def view_sets(cls):
+        [print(item) for item in cls.fetch_sets()]
         return None
 
 
-    @staticmethod
-    def view_queries(queryset):
+    @classmethod
+    def fetch_queries(cls, queryset):
         """
-        Print avialbable query results in PATHS.output / queryset.
-        (Use view_sets to view available sets.)
+        Return available query results in PATHS.output / queryset.
         """
 
-        base = PATHS.output
         path = PATHS.output / queryset
-        for item in path.glob('**/*.*'):
-            print(item.relative_to(base).with_suffix(''))
+        return [cls.read_pickle(file) for file in path.glob('**/*.pkl')]
+
+
+    @classmethod
+    def view_queries(cls, queryset):
+        [print(item.qd.filename) for item in cls.fetch_queries(queryset)]
         return None
 
 
